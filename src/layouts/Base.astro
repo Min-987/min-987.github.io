@@ -1,0 +1,93 @@
+---
+const { title = 'Min Kang', description = '' } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <style is:global>
+      :root {
+        --bg: #0e0f13;
+        --surface: #181a21;
+        --text: #e8eaf0;
+        --muted: #9aa0ac;
+        --accent: #5b8def;
+        --border: #262a33;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang TC", "Microsoft JhengHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+      header.site {
+        border-bottom: 1px solid var(--border);
+        padding: 20px 0;
+        position: sticky; top: 0;
+        background: rgba(14,15,19,.85);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+      }
+      header.site .wrap { display: flex; justify-content: space-between; align-items: center; }
+      header.site a.logo { font-weight: 700; color: var(--text); text-decoration: none; font-size: 18px; }
+      header.site nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
+      header.site nav a:hover { color: var(--text); }
+      main { padding: 56px 0 80px; }
+      h1 { font-size: 34px; line-height: 1.25; margin-bottom: 16px; }
+      h2 { font-size: 22px; margin: 36px 0 12px; }
+      h3 { font-size: 17px; margin: 24px 0 8px; }
+      p, li { color: var(--text); margin-bottom: 12px; }
+      a { color: var(--accent); }
+      .muted { color: var(--muted); }
+      ul { padding-left: 22px; margin-bottom: 12px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        margin: 16px 0;
+        display: block;
+        text-decoration: none;
+        color: var(--text);
+        transition: border-color .2s;
+      }
+      a.card:hover { border-color: var(--accent); }
+      .tag {
+        display: inline-block; font-size: 12px; color: var(--muted);
+        border: 1px solid var(--border); border-radius: 999px;
+        padding: 2px 10px; margin-right: 6px; margin-top: 8px;
+      }
+      footer.site {
+        border-top: 1px solid var(--border);
+        padding: 28px 0; color: var(--muted); font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site">
+      <div class="wrap">
+        <a class="logo" href="/">Min Kang</a>
+        <nav>
+          <a href="/">首頁</a>
+          <a href="/expiryrp">ExpiryRP</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+    <footer class="site">
+      <div class="wrap">© {new Date().getFullYear()} Min Kang</div>
+    </footer>
+  </body>
+</html>
