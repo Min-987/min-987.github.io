@@ -1,0 +1,82 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const features = [
+  { icon: '🗂️', title: '逐圖層輸出', desc: '每個圖層各自存成獨立 PNG 檔案。' },
+  { icon: '📐', title: '保留位置', desc: 'PNG 維持原始畫布尺寸與圖層位置，透明背景不變形。' },
+  { icon: '📁', title: '群組支援', desc: '群組圖層會遞迴展開，子圖層一併匯出。' },
+  { icon: '🔢', title: '自動編號', desc: '可選的 01_、02_ 前綴編號，預設開啟、可關閉。' },
+  { icon: '🖥️', title: '圖形介面', desc: '選檔、設定輸出資料夾與檔名前綴，附即時匯出記錄。' },
+  { icon: '🌐', title: '雙語介面', desc: '首次啟動可選 English／繁體中文，自動記住偏好。' },
+];
+---
+<Base title="PSD Layer to PNG Exporter — PSD 圖層轉 PNG 工具" description="把 PSD 檔的每個圖層各自輸出成獨立 PNG，並保留原始位置。">
+
+  <section class="hero" style="text-align:center;">
+    <div class="wrap">
+      <div style="font-size:64px; line-height:1;">🖼️</div>
+      <h1 style="margin-top:16px;">PSD Layer to PNG</h1>
+      <p class="lead" style="margin:0 auto;">
+        把 PSD 檔的每個圖層各自輸出成獨立 PNG，
+        並完整保留每個圖層在畫布上的原始位置。
+      </p>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn-primary" href="https://github.com/Min-987/psd_to_png" target="_blank" rel="noopener">在 GitHub 查看 ↗</a>
+        <a class="btn btn-ghost" href="https://github.com/Min-987/psd_to_png/releases" target="_blank" rel="noopener">下載 Windows 版</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>主要功能</h2>
+      <div class="feature-grid">
+        {features.map((f) => (
+          <div class="feature">
+            <div class="fi">{f.icon}</div>
+            <div class="ft">{f.title}</div>
+            <div class="fd">{f.desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>怎麼使用</h2>
+      <p>
+        Windows 使用者可直接到
+        <a href="https://github.com/Min-987/psd_to_png/releases" target="_blank" rel="noopener">Releases</a>
+        下載免安裝執行檔，無需安裝 Python。
+      </p>
+      <p class="muted">
+        開發者也可以下載原始碼，安裝 <code>psd-tools</code> 後直接執行 Python 腳本。
+        詳細說明見 GitHub 上的 README。
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color .2s, transform .15s;
+    }
+    .feature:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .feature .fi { font-size: 28px; }
+    .feature .ft { font-weight: 600; margin: 10px 0 4px; }
+    .feature .fd { color: var(--muted); font-size: 14px; line-height: 1.6; }
+    code {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1px 6px; font-size: 13px;
+    }
+  </style>
+</Base>
