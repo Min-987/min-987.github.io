@@ -1,27 +1,73 @@
 ---
 import Base from '../../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const features = [
+  { icon: '📷', title: '條碼掃描', desc: '掃一下快速建立物品，自動帶入商品名稱。' },
+  { icon: '🔔', title: '到期提醒', desc: '到期前 1／3／7 天主動推播，不再錯過。' },
+  { icon: '🗂️', title: '分類管理', desc: '食品、藥品、保養、清潔，分門別類一目了然。' },
+  { icon: '👨‍👩‍👧', title: '家庭共享', desc: '建立群組，全家人一起管理同一份清單。' },
+  { icon: '📊', title: '消耗統計', desc: '看見每月吃完與浪費的趨勢，減少浪費。' },
+  { icon: '📱', title: '桌面小工具', desc: '不開 App 也能一眼看到快到期的東西。' },
+];
 ---
 <Base title="ExpiryRP — 到期日管理工具" description="掃描條碼記錄物品到期日，到期前提醒你，減少浪費。">
-  <h1>📦 ExpiryRP</h1>
-  <p>掃描條碼記錄物品到期日，在到期前主動提醒你，減少食物與用品的浪費。</p>
 
-  <h2>主要功能</h2>
-  <ul>
-    <li>條碼掃描快速建立物品，自動帶入商品名稱</li>
-    <li>到期前 1／3／7 天推播提醒</li>
-    <li>分類管理：食品、藥品、保養、清潔等</li>
-    <li>家庭共享群組，成員一起管理</li>
-    <li>消耗與浪費統計，看見每月趨勢</li>
-    <li>iOS 桌面小工具，一眼看到快到期的東西</li>
-  </ul>
+  <section class="hero" style="text-align:center;">
+    <div class="wrap">
+      <div style="font-size:64px; line-height:1;">📦</div>
+      <h1 style="margin-top:16px;">ExpiryRP</h1>
+      <p class="lead" style="margin:0 auto;">
+        掃描條碼記錄物品到期日，在到期前主動提醒你，
+        減少食物與用品的浪費。
+      </p>
+      <div class="btn-row" style="justify-content:center;">
+        <span class="btn btn-primary" style="cursor:default; opacity:.85;">即將在 App Store 上架</span>
+      </div>
+    </div>
+  </section>
 
-  <h2>下載</h2>
-  <p class="muted">即將在 App Store 上架。<!-- TODO: 上架後換成 App Store 連結 --></p>
+  <section>
+    <div class="wrap">
+      <h2>主要功能</h2>
+      <div class="feature-grid">
+        {features.map((f) => (
+          <div class="feature">
+            <div class="fi">{f.icon}</div>
+            <div class="ft">{f.title}</div>
+            <div class="fd">{f.desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
-  <h2>支援與隱私</h2>
-  <p>
-    <a href={`${base}/support`}>技術支援</a> ·
-    <a href={`${base}/privacy`}>隱私權政策</a>
-  </p>
+  <section id="links">
+    <div class="wrap">
+      <h2>支援與隱私</h2>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href={`${base}/support`}>技術支援</a>
+        <a class="btn btn-ghost" href={`${base}/privacy`}>隱私權政策</a>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color .2s, transform .15s;
+    }
+    .feature:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .feature .fi { font-size: 28px; }
+    .feature .ft { font-weight: 600; margin: 10px 0 4px; }
+    .feature .fd { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  </style>
 </Base>
