@@ -1,5 +1,6 @@
 ---
 const { title = 'Min Kang', description = '' } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <!doctype html>
 <html lang="zh-Hant">
@@ -74,10 +75,10 @@ const { title = 'Min Kang', description = '' } = Astro.props;
   <body>
     <header class="site">
       <div class="wrap">
-        <a class="logo" href="/">Min Kang</a>
+        <a class="logo" href={`${base}/`}>Min Kang</a>
         <nav>
-          <a href="/">首頁</a>
-          <a href="/expiryrp">ExpiryRP</a>
+          <a href={`${base}/`}>首頁</a>
+          <a href={`${base}/expiryrp`}>ExpiryRP</a>
         </nav>
       </div>
     </header>
