@@ -2,12 +2,12 @@
 import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// 技能（可自由增刪）
+// 涉獵領域（可自由增刪）
 const skills = [
-  { k: 'Flutter / Dart', v: '跨平台 App 開發' },
-  { k: 'Firebase', v: 'Auth · Firestore · Storage' },
-  { k: 'iOS', v: 'Swift · WidgetKit' },
-  { k: 'Web', v: 'Astro · HTML / CSS' },
+  { k: '行動 App', v: 'iOS · Android' },
+  { k: '雲端服務', v: '帳號登入、資料同步' },
+  { k: '網站', v: '像你正在看的這個' },
+  { k: 'AI 協作', v: '用 AI 加速開發' },
 ];
 ---
 <Base title="Min — 個人網站" description="Min 的個人網站與作品集。打造實用的行動應用。">
@@ -18,9 +18,8 @@ const skills = [
       <h1>嗨，我是 <span class="gradient-text">Min</span> 👋<br/>我打造實用的 App。</h1>
       <p class="lead">
         喜歡把生活中的小麻煩，變成<span class="accent">好用的工具</span>。
-        目前專注在 Flutter 與 iOS 開發，最新作品是到期日管理 App
-        <span class="accent">ExpiryRP</span>。
-        <!-- TODO: 換成你自己的一句話介紹 -->
+        善用各種工具把腦中的點子做成真的能用的東西，
+        最新作品是到期日管理 App <span class="accent">ExpiryRP</span>。
       </p>
       <div class="btn-row">
         <a class="btn btn-primary" href={`${base}/#projects`}>看我的作品</a>
@@ -34,13 +33,12 @@ const skills = [
     <div class="wrap">
       <h2>關於我</h2>
       <p>
-        我是一名熱愛動手做的開發者，從想法、設計到上架一手包辦。
-        相信好的產品來自對細節的在意，以及願意反覆打磨的耐心。
-        <!-- TODO: 補充你的背景故事：怎麼開始寫程式、做過什麼、想往哪走 -->
+        比起鑽研艱深的技術，我更在意一個東西<span style="color:var(--text)">好不好用、能不能真的解決問題</span>。
+        我喜歡從一個生活中的小困擾出發，一步步把它變成可以實際使用的產品。
       </p>
       <p class="muted">
-        工作之外，喜歡研究能讓日常更有效率的小工具與設計。
-        <!-- TODO: 換成你的興趣/個人特色 -->
+        在各種現代工具（包含 AI）的協助下，我能把想法快速做成成品——
+        ExpiryRP 就是這樣誕生的。我享受這個從零到一、邊做邊學的過程。
       </p>
     </div>
   </section>
@@ -48,7 +46,7 @@ const skills = [
   <!-- Skills -->
   <section id="skills">
     <div class="wrap">
-      <h2>技能</h2>
+      <h2>涉獵領域</h2>
       <div class="skill-grid">
         {skills.map((s) => (
           <div class="skill">
