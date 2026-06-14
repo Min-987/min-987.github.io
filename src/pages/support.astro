@@ -1,32 +1,83 @@
 ---
 import Base from '../layouts/Base.astro';
+
+const faqs = [
+  {
+    q: '掃描條碼後查不到商品名稱？',
+    a: '商品資料來自開放資料庫，部分商品可能尚未收錄。你可以手動輸入名稱；若名稱有誤，也可在物品詳情頁回報，我們會更新共用資料庫。',
+  },
+  {
+    q: '通知沒有出現？',
+    a: '請確認系統設定中已允許 ExpiryRP 傳送通知，且物品的「到期提醒」為開啟狀態。',
+  },
+  {
+    q: '照片存在哪裡？',
+    a: '物品照片只儲存在你的裝置本機，不會上傳雲端，因此不會佔用雲端空間，也不會同步到其他裝置。',
+  },
+  {
+    q: '如何刪除我的帳號與資料？',
+    a: '來信至下方 Email 提出帳號刪除需求，我們會移除你的帳號及相關資料。',
+  },
+];
 ---
 <Base title="ExpiryRP 技術支援" description="ExpiryRP 的常見問題與聯絡方式。">
-  <h1>ExpiryRP 技術支援</h1>
-  <p>有任何問題、建議或回報錯誤，歡迎來信，我會儘快回覆。</p>
-  <p><strong>聯絡 Email：</strong><a href="mailto:n200127@gmail.com">n200127@gmail.com</a></p>
 
-  <h2>常見問題</h2>
+  <section class="hero" style="text-align:center;">
+    <div class="wrap">
+      <div style="font-size:52px; line-height:1;">💬</div>
+      <h1 style="margin-top:14px;">技術支援</h1>
+      <p class="lead" style="margin:0 auto;">
+        有任何問題、建議或想回報錯誤，都歡迎來信，我會儘快回覆。
+      </p>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn-primary" href="mailto:n200127@gmail.com">寄信給我</a>
+      </div>
+    </div>
+  </section>
 
-  <h3>掃描條碼後查不到商品名稱？</h3>
-  <p class="muted">
-    商品資料來自開放資料庫，部分商品可能尚未收錄。你可以手動輸入名稱；
-    若名稱有誤，也可在物品詳情頁回報，我們會更新共用資料庫。
-  </p>
+  <section>
+    <div class="wrap">
+      <h2>常見問題</h2>
+      <div class="faq-list">
+        {faqs.map((f) => (
+          <details class="faq">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
 
-  <h3>通知沒有出現？</h3>
-  <p class="muted">
-    請確認系統設定中已允許 ExpiryRP 傳送通知，且物品的「到期提醒」為開啟狀態。
-  </p>
+  <section>
+    <div class="wrap">
+      <h2>聯絡方式</h2>
+      <p>Email：<a href="mailto:n200127@gmail.com">n200127@gmail.com</a></p>
+      <p class="muted" style="font-size:14px;">← <a href="/expiryrp">回到 ExpiryRP</a></p>
+    </div>
+  </section>
 
-  <h3>照片存在哪裡？</h3>
-  <p class="muted">
-    物品照片只儲存在你的裝置本機，不會上傳雲端，因此不會佔用雲端空間，
-    也不會同步到其他裝置。
-  </p>
-
-  <h3>如何刪除我的帳號與資料？</h3>
-  <p class="muted">
-    來信至上方 Email 提出帳號刪除需求，我們會移除你的帳號及相關資料。
-  </p>
+  <style>
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .faq {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 4px 20px;
+      transition: border-color .2s;
+    }
+    .faq[open] { border-color: var(--accent); }
+    .faq summary {
+      cursor: pointer; list-style: none;
+      font-weight: 600; padding: 16px 0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: '+'; color: var(--muted); font-size: 20px; font-weight: 400;
+      transition: transform .2s;
+    }
+    .faq[open] summary::after { content: '−'; }
+    .faq p { color: var(--muted); margin: 0 0 16px; line-height: 1.7; }
+  </style>
 </Base>
