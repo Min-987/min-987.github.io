@@ -1,30 +1,104 @@
 ---
 import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// 技能（可自由增刪）
+const skills = [
+  { k: 'Flutter / Dart', v: '跨平台 App 開發' },
+  { k: 'Firebase', v: 'Auth · Firestore · Storage' },
+  { k: 'iOS', v: 'Swift · WidgetKit' },
+  { k: 'Web', v: 'Astro · HTML / CSS' },
+];
 ---
-<Base title="Min Kang" description="Min Kang 的個人網站與作品集">
-  <h1>嗨，我是 Min 👋</h1>
-  <p class="muted">
-    這裡放我的作品與正在做的東西。
-    <!-- TODO: 換成你的自我介紹：背景、專長、想做的事 -->
-  </p>
+<Base title="Min Kang — 個人網站" description="Min Kang 的個人網站與作品集。打造實用的行動應用。">
 
-  <h2>作品</h2>
-
-  <a class="card" href={`${base}/expiryrp`}>
-    <strong style="font-size:18px;">📦 ExpiryRP</strong>
-    <p class="muted" style="margin:8px 0 0;">
-      到期日管理工具 — 掃描條碼記錄物品到期日，到期前提醒，減少浪費。
-    </p>
-    <div>
-      <span class="tag">Flutter</span>
-      <span class="tag">Firebase</span>
-      <span class="tag">iOS</span>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>嗨，我是 <span class="gradient-text">Min</span> 👋<br/>我打造實用的 App。</h1>
+      <p class="lead">
+        喜歡把生活中的小麻煩，變成<span class="accent">好用的工具</span>。
+        目前專注在 Flutter 與 iOS 開發，最新作品是到期日管理 App
+        <span class="accent">ExpiryRP</span>。
+        <!-- TODO: 換成你自己的一句話介紹 -->
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href={`${base}/#projects`}>看我的作品</a>
+        <a class="btn btn-ghost" href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
     </div>
-  </a>
+  </section>
 
-  <!-- 之後可以再加更多作品 card -->
+  <!-- About -->
+  <section id="about">
+    <div class="wrap">
+      <h2>關於我</h2>
+      <p>
+        我是一名熱愛動手做的開發者，從想法、設計到上架一手包辦。
+        相信好的產品來自對細節的在意，以及願意反覆打磨的耐心。
+        <!-- TODO: 補充你的背景故事：怎麼開始寫程式、做過什麼、想往哪走 -->
+      </p>
+      <p class="muted">
+        工作之外，喜歡研究能讓日常更有效率的小工具與設計。
+        <!-- TODO: 換成你的興趣/個人特色 -->
+      </p>
+    </div>
+  </section>
 
-  <h2>聯絡</h2>
-  <p>Email：<a href="mailto:n200127@gmail.com">n200127@gmail.com</a></p>
+  <!-- Skills -->
+  <section id="skills">
+    <div class="wrap">
+      <h2>技能</h2>
+      <div class="skill-grid">
+        {skills.map((s) => (
+          <div class="skill">
+            <div class="k">{s.k}</div>
+            <div class="v">{s.v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="wrap">
+      <h2>作品</h2>
+
+      <a class="card" href={`${base}/expiryrp`}>
+        <div class="row">
+          <span class="emoji">📦</span>
+          <div>
+            <strong style="font-size:18px;">ExpiryRP</strong>
+            <div class="muted" style="font-size:14px;">到期日管理工具</div>
+          </div>
+        </div>
+        <p class="muted" style="margin:14px 0 0;">
+          掃描條碼記錄物品到期日，到期前主動提醒，減少食物與用品的浪費。
+          支援家庭共享、消耗統計與 iOS 桌面小工具。
+        </p>
+        <div class="tags">
+          <span class="tag">Flutter</span>
+          <span class="tag">Firebase</span>
+          <span class="tag">iOS Widget</span>
+          <span class="tag">即將上架</span>
+        </div>
+      </a>
+
+      <!-- 之後有新作品，複製上面的 <a class="card"> 區塊再加一個就好 -->
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="wrap">
+      <h2>聯絡</h2>
+      <p>有專案合作、工作機會或單純想聊聊，都歡迎來信 👇</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="mailto:n200127@gmail.com">寄 Email 給我</a>
+        <a class="btn btn-ghost" href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </div>
+  </section>
+
 </Base>

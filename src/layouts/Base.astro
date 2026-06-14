@@ -7,88 +7,151 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
     <style is:global>
       :root {
-        --bg: #0e0f13;
-        --surface: #181a21;
-        --text: #e8eaf0;
-        --muted: #9aa0ac;
-        --accent: #5b8def;
-        --border: #262a33;
+        --bg: #0c0d11;
+        --surface: #16181f;
+        --surface-2: #1d2029;
+        --text: #eceef4;
+        --muted: #969cab;
+        --accent: #6c8cff;
+        --accent-2: #a06bff;
+        --border: #252934;
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
           "PingFang TC", "Microsoft JhengHei", sans-serif;
         background: var(--bg);
         color: var(--text);
-        line-height: 1.7;
+        line-height: 1.75;
         -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
       }
-      .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+      /* header */
       header.site {
         border-bottom: 1px solid var(--border);
-        padding: 20px 0;
+        padding: 16px 0;
         position: sticky; top: 0;
-        background: rgba(14,15,19,.85);
-        backdrop-filter: blur(10px);
+        background: rgba(12,13,17,.8);
+        backdrop-filter: blur(12px);
         z-index: 10;
       }
       header.site .wrap { display: flex; justify-content: space-between; align-items: center; }
-      header.site a.logo { font-weight: 700; color: var(--text); text-decoration: none; font-size: 18px; }
-      header.site nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
+      header.site a.logo {
+        font-weight: 700; color: var(--text); text-decoration: none; font-size: 17px;
+        letter-spacing: .3px;
+      }
+      header.site nav a { color: var(--muted); text-decoration: none; margin-left: 22px; font-size: 14px; transition: color .2s; }
       header.site nav a:hover { color: var(--text); }
-      main { padding: 56px 0 80px; }
-      h1 { font-size: 34px; line-height: 1.25; margin-bottom: 16px; }
-      h2 { font-size: 22px; margin: 36px 0 12px; }
-      h3 { font-size: 17px; margin: 24px 0 8px; }
+
+      main { padding: 0 0 96px; }
+      section { padding: 56px 0 0; }
+      h1 { font-size: clamp(32px, 6vw, 46px); line-height: 1.15; margin-bottom: 18px; letter-spacing: -.5px; }
+      h2 {
+        font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+        color: var(--muted); margin-bottom: 20px; font-weight: 600;
+      }
+      h3 { font-size: 18px; margin: 24px 0 8px; }
       p, li { color: var(--text); margin-bottom: 12px; }
       a { color: var(--accent); }
       .muted { color: var(--muted); }
       ul { padding-left: 22px; margin-bottom: 12px; }
+
+      /* hero */
+      .hero { padding-top: 72px; }
+      .hero .lead { font-size: 19px; color: var(--muted); max-width: 560px; }
+      .hero .accent { color: var(--text); font-weight: 600; }
+      .gradient-text {
+        background: linear-gradient(120deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* buttons */
+      .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 11px 20px; border-radius: 12px; text-decoration: none;
+        font-size: 14px; font-weight: 600; transition: transform .15s, background .2s;
+      }
+      .btn:hover { transform: translateY(-2px); }
+      .btn-primary { background: var(--accent); color: #0c0d11; }
+      .btn-ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+
+      /* cards */
       .card {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 24px;
-        margin: 16px 0;
+        margin: 14px 0;
         display: block;
         text-decoration: none;
         color: var(--text);
-        transition: border-color .2s;
+        transition: border-color .2s, transform .15s, background .2s;
       }
-      a.card:hover { border-color: var(--accent); }
+      a.card:hover { border-color: var(--accent); transform: translateY(-3px); background: var(--surface-2); }
+      .card .row { display: flex; align-items: center; gap: 12px; }
+      .card .emoji { font-size: 28px; }
+
+      /* tags */
+      .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
       .tag {
-        display: inline-block; font-size: 12px; color: var(--muted);
-        border: 1px solid var(--border); border-radius: 999px;
-        padding: 2px 10px; margin-right: 6px; margin-top: 8px;
+        font-size: 12.5px; color: var(--muted);
+        background: var(--surface-2); border: 1px solid var(--border);
+        border-radius: 999px; padding: 4px 12px;
       }
+
+      /* skills grid */
+      .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+      .skill {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 12px; padding: 14px 16px; font-size: 14px;
+      }
+      .skill .k { font-weight: 600; }
+      .skill .v { color: var(--muted); font-size: 12.5px; }
+
+      /* footer */
       footer.site {
         border-top: 1px solid var(--border);
-        padding: 28px 0; color: var(--muted); font-size: 13px;
+        padding: 32px 0; color: var(--muted); font-size: 13px;
+        margin-top: 64px;
       }
+      footer.site .links a { color: var(--muted); text-decoration: none; margin-right: 18px; transition: color .2s; }
+      footer.site .links a:hover { color: var(--text); }
     </style>
   </head>
   <body>
     <header class="site">
       <div class="wrap">
-        <a class="logo" href={`${base}/`}>Min Kang</a>
+        <a class="logo" href={`${base}/`}>Min<span style="color:var(--accent)">.</span></a>
         <nav>
-          <a href={`${base}/`}>首頁</a>
-          <a href={`${base}/expiryrp`}>ExpiryRP</a>
+          <a href={`${base}/#about`}>關於</a>
+          <a href={`${base}/#projects`}>作品</a>
+          <a href={`${base}/#contact`}>聯絡</a>
         </nav>
       </div>
     </header>
     <main>
-      <div class="wrap">
-        <slot />
-      </div>
+      <slot />
     </main>
     <footer class="site">
-      <div class="wrap">© {new Date().getFullYear()} Min Kang</div>
+      <div class="wrap">
+        <div class="links" style="margin-bottom:8px;">
+          <a href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:n200127@gmail.com">Email</a>
+        </div>
+        © {new Date().getFullYear()} Min Kang
+      </div>
     </footer>
   </body>
 </html>
