@@ -1,77 +1,158 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="ExpiryRP 隱私權政策" description="ExpiryRP 如何收集與使用你的資料。">
+<Base title="ExpiryRP 隱私政策 / Privacy Policy" description="ExpiryRP 如何收集與使用你的資料。">
 
   <section class="hero" style="text-align:center;">
     <div class="wrap">
       <div style="font-size:52px; line-height:1;">🔒</div>
-      <h1 style="margin-top:14px;">隱私權政策</h1>
-      <span class="badge">最後更新：2026 年 6 月 14 日</span>
+      <h1 style="margin-top:14px;">隱私政策 / Privacy Policy</h1>
+      <span class="badge">最後更新 / Last updated：2026 年 6 月</span>
       <p class="lead" style="margin:18px auto 0;">
-        本政策說明 ExpiryRP 如何收集、使用與保護你的個人資料。
-        使用本 App 即表示你同意本政策的內容。
+        本政策說明 ExpiryRP 如何收集、使用與保護你的個人資料。<br>
+        This policy explains how ExpiryRP collects, uses, and protects your personal data.
       </p>
+      <div class="lang-nav">
+        <a href="#zh">中文</a>
+        <span>·</span>
+        <a href="#en">English</a>
+      </div>
     </div>
   </section>
 
-  <section>
+  <!-- 繁體中文 -->
+  <section id="zh">
     <div class="wrap doc">
+      <h2 class="section-title">繁體中文</h2>
+
       <div class="doc-card">
-        <h2>我們收集的資料</h2>
+        <h3>1. 我們收集的資料</h3>
         <ul>
           <li><strong>帳號資料：</strong>當你以 Google 或 Apple 登入時，我們會取得你的電子郵件、顯示名稱與頭像，用於識別你的帳號。</li>
-          <li><strong>你建立的內容：</strong>物品名稱、到期日、分類、數量、備註、條碼、消耗記錄，以及你所屬的家庭群組資訊。</li>
-          <li><strong>物品照片：</strong>僅儲存在你的裝置本機，不會上傳至我們的伺服器。</li>
+          <li><strong>你建立的內容：</strong>物品名稱、到期日、分類、數量、備註、條碼、消耗記錄，以及你所屬的家庭群組資訊，儲存於 Firebase Firestore。</li>
+          <li><strong>回報截圖：</strong>當你透過回報功能上傳截圖時，圖片儲存於 Firebase Storage。</li>
+          <li><strong>物品照片：</strong>僅儲存在你的裝置本機（iOS Documents 目錄），不會上傳至任何伺服器。</li>
         </ul>
       </div>
 
       <div class="doc-card">
-        <h2>我們如何使用資料</h2>
+        <h3>2. 我們不收集的資料</h3>
+        <ul>
+          <li>我們<strong>不</strong>收集廣告識別碼或追蹤用戶行為</li>
+          <li>我們<strong>不</strong>將你的資料出售或提供給任何第三方廣告商</li>
+          <li>我們<strong>不</strong>收集精確地理位置</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>3. 資料的使用方式</h3>
         <ul>
           <li>提供物品管理、到期提醒與家庭共享等核心功能</li>
-          <li>在你所屬的家庭群組成員之間同步物品資料</li>
+          <li>在家庭群組成員之間同步物品資料</li>
           <li>產生消耗與浪費統計</li>
+          <li>發送本機通知，於物品到期前 1、3、7 天提醒你</li>
         </ul>
-        <p>我們<strong>不會</strong>將你的個人資料販售或出租給第三方，也不會用於廣告。</p>
       </div>
 
       <div class="doc-card">
-        <h2>資料儲存與第三方服務</h2>
+        <h3>4. 資料儲存與第三方服務</h3>
         <p>
-          本 App 使用 Google Firebase（Authentication 與 Cloud Firestore）儲存帳號與物品資料。
-          這些資料儲存於 Google 的雲端基礎設施，受
-          <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase 隱私權政策</a>規範。
-          條碼商品資訊查詢使用 Open Food Facts 開放資料庫。
+          本 App 使用 Google Firebase（Authentication 與 Cloud Firestore）儲存帳號與物品資料，
+          受 <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase 隱私政策</a>規範。
+          條碼商品資訊查詢使用 <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> 開放資料庫。
         </p>
       </div>
 
       <div class="doc-card">
-        <h2>通知</h2>
-        <p>本 App 使用本機通知於物品到期前提醒你。你可以隨時在系統設定或 App 內關閉通知。</p>
+        <h3>5. 資料保留與刪除</h3>
+        <p>你可隨時在 App 內編輯或刪除物品。若要刪除整個帳號與所有相關資料，請來信 <a href="mailto:n200127@gmail.com">n200127@gmail.com</a>，我們將在 30 天內完成處理。</p>
       </div>
 
       <div class="doc-card">
-        <h2>你的權利</h2>
-        <p>你可以隨時在 App 內編輯或刪除你建立的物品。若要刪除整個帳號與相關資料，請來信 <a href="mailto:n200127@gmail.com">n200127@gmail.com</a>，我們會在合理期間內處理。</p>
-      </div>
-
-      <div class="doc-card">
-        <h2>兒童隱私</h2>
+        <h3>6. 兒童隱私</h3>
         <p>本 App 不以 13 歲以下兒童為對象，亦不會刻意收集其個人資料。</p>
       </div>
 
       <div class="doc-card">
-        <h2>政策變更</h2>
-        <p>本政策若有更新，將於本頁公布並更新上方的「最後更新」日期。</p>
+        <h3>7. 政策變更</h3>
+        <p>本政策若有更新，將於本頁公布並更新上方的日期。繼續使用本 App 即表示你接受最新政策。</p>
       </div>
 
       <div class="doc-card">
-        <h2>聯絡我們</h2>
+        <h3>8. 聯絡我們</h3>
         <p>對本政策有任何疑問，請來信：<a href="mailto:n200127@gmail.com">n200127@gmail.com</a></p>
       </div>
 
       <p class="muted" style="font-size:14px; margin-top:8px;">← <a href="/expiryrp">回到 ExpiryRP</a></p>
+    </div>
+  </section>
+
+  <hr class="lang-divider" />
+
+  <!-- English -->
+  <section id="en">
+    <div class="wrap doc">
+      <h2 class="section-title">English</h2>
+
+      <div class="doc-card">
+        <h3>1. Data We Collect</h3>
+        <ul>
+          <li><strong>Account data:</strong> When you sign in with Google or Apple, we receive your email address, display name, and profile photo, used solely to identify your account.</li>
+          <li><strong>Content you create:</strong> Item names, expiry dates, categories, quantities, notes, barcodes, consumption records, and household group data, stored in Firebase Firestore.</li>
+          <li><strong>Feedback screenshots:</strong> When you submit feedback with a screenshot, the image is stored in Firebase Storage.</li>
+          <li><strong>Item photos:</strong> Stored locally on your device only (iOS Documents directory) and never uploaded to any server.</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>2. Data We Do NOT Collect</h3>
+        <ul>
+          <li>We do <strong>not</strong> collect advertising identifiers or track user behavior</li>
+          <li>We do <strong>not</strong> sell or share your data with third-party advertisers</li>
+          <li>We do <strong>not</strong> collect precise geolocation</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>3. How We Use Your Data</h3>
+        <ul>
+          <li>Provide core features: item tracking, expiry reminders, and household sharing</li>
+          <li>Sync item data between household members</li>
+          <li>Generate consumption and waste statistics</li>
+          <li>Send local notifications 1, 3, and 7 days before items expire</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>4. Data Storage & Third-Party Services</h3>
+        <p>
+          The app uses Google Firebase (Authentication and Cloud Firestore) to store account and item data,
+          governed by the <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>.
+          Barcode product lookups use the <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> open database.
+        </p>
+      </div>
+
+      <div class="doc-card">
+        <h3>5. Data Retention & Deletion</h3>
+        <p>You may edit or delete items at any time within the app. To delete your entire account and all associated data, contact <a href="mailto:n200127@gmail.com">n200127@gmail.com</a>. We will process the request within 30 days.</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>6. Children's Privacy</h3>
+        <p>This app is not directed at children under 13, and we do not knowingly collect their personal data.</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>7. Changes to This Policy</h3>
+        <p>If this policy is updated, changes will be posted on this page with a new date. Continued use of the app constitutes acceptance of the updated policy.</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>8. Contact</h3>
+        <p>For any privacy-related questions, please contact: <a href="mailto:n200127@gmail.com">n200127@gmail.com</a></p>
+      </div>
+
+      <p class="muted" style="font-size:14px; margin-top:8px;">← <a href="/expiryrp">Back to ExpiryRP</a></p>
     </div>
   </section>
 
@@ -81,6 +162,18 @@ import Base from '../layouts/Base.astro';
       background: var(--surface-2); border: 1px solid var(--border);
       border-radius: 999px; padding: 4px 14px;
     }
+    .lang-nav {
+      margin-top: 16px; font-size: 14px; color: var(--muted);
+    }
+    .lang-nav a { color: var(--text); font-weight: 600; text-decoration: none; }
+    .lang-nav a:hover { text-decoration: underline; }
+    .lang-divider {
+      border: none; border-top: 2px solid var(--border); margin: 0;
+    }
+    .section-title {
+      font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); margin-bottom: 16px;
+    }
     .doc-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -88,7 +181,7 @@ import Base from '../layouts/Base.astro';
       padding: 22px 24px;
       margin-bottom: 14px;
     }
-    .doc-card h2 {
+    .doc-card h3 {
       font-size: 16px; text-transform: none; letter-spacing: normal;
       color: var(--text); margin-bottom: 10px;
     }
