@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TWA58V38XB.com.expiryRP.app",
+        "appIDs": ["TWA58V38XB.com.expiryRP.app"],
+        "paths": ["/join", "/join/*"]
+      }
+    ]
+  }
+}
