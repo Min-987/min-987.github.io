@@ -39,13 +39,29 @@ import Base from '../layouts/Base.astro';
       hint.textContent = '點下方按鈕，在 App 內完成加入：';
       codeBox.style.display = 'block';
       codeText.textContent = code;
+      function accentSpan(text) {
+        const span = document.createElement('span');
+        span.style.color = 'var(--accent)';
+        span.textContent = text;
+        return span;
+      }
+
       if (inviterName) {
-        inviterLine.textContent = group
-          ? `${inviterName} 邀請你加入「${group}」群組`
-          : `${inviterName} 邀請你加入群組`;
+        inviterLine.textContent = '';
+        inviterLine.appendChild(accentSpan(inviterName));
+        if (group) {
+          inviterLine.appendChild(document.createTextNode(' 邀請你加入「'));
+          inviterLine.appendChild(accentSpan(group));
+          inviterLine.appendChild(document.createTextNode('」群組'));
+        } else {
+          inviterLine.appendChild(document.createTextNode(' 邀請你加入群組'));
+        }
         inviterLine.style.display = 'block';
       } else if (group) {
-        inviterLine.textContent = `邀請你加入「${group}」群組`;
+        inviterLine.textContent = '';
+        inviterLine.appendChild(document.createTextNode('邀請你加入「'));
+        inviterLine.appendChild(accentSpan(group));
+        inviterLine.appendChild(document.createTextNode('」群組'));
         inviterLine.style.display = 'block';
       }
       // 三個斜線：讓 expiryrp:/// 後面的 join 落在路徑（path）而不是主機名稱（host），
