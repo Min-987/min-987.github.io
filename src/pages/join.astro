@@ -7,6 +7,7 @@ import Base from '../layouts/Base.astro';
     <div class="wrap">
       <div style="font-size:52px; line-height:1;">📦</div>
       <h1 style="margin-top:14px;">加入群組邀請</h1>
+      <p id="inviterLine" style="display:none; margin:8px auto 0; font-size:15px; color:var(--muted);"></p>
       <p class="lead" id="hint" style="margin:0 auto;">正在讀取邀請碼…</p>
 
       <div id="codeBox" style="display:none; margin:20px auto 0; max-width:280px;">
@@ -26,7 +27,10 @@ import Base from '../layouts/Base.astro';
   <script>
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
+    const group = params.get('group');
+    const inviterName = params.get('name');
     const hint = document.getElementById('hint');
+    const inviterLine = document.getElementById('inviterLine');
     const codeBox = document.getElementById('codeBox');
     const codeText = document.getElementById('codeText');
     const openAppBtn = document.getElementById('openAppBtn');
@@ -35,9 +39,18 @@ import Base from '../layouts/Base.astro';
       hint.textContent = '點下方按鈕，在 App 內完成加入：';
       codeBox.style.display = 'block';
       codeText.textContent = code;
-      openAppBtn.setAttribute('href', `expiryrp://join?code=${encodeURIComponent(code)}`);
-      // 若已安裝 App 但 Universal Link 還沒生效，嘗試自動喚醒一次
-      window.location.replace(`expiryrp://join?code=${encodeURIComponent(code)}`);
+      if (inviterName) {
+        inviterLine.textContent = group
+          ? `${inviterName} 邀請你加入「${group}」群組`
+          : `${inviterName} 邀請你加入群組`;
+        inviterLine.style.display = 'block';
+      } else if (group) {
+        inviterLine.textContent = `邀請你加入「${group}」群組`;
+        inviterLine.style.display = 'block';
+      }
+      // 三個斜線：讓 expiryrp:/// 後面的 join 落在路徑（path）而不是主機名稱（host），
+      // 否則 App 端的路由解析會抓不到 /join，永遠停在首頁
+      openAppBtn.setAttribute('href', `expiryrp:///join?code=${encodeURIComponent(code)}`);
     } else {
       hint.textContent = '邀請連結缺少邀請碼，請確認連結是否完整。';
       openAppBtn.style.display = 'none';
