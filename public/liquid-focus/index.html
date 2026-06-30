@@ -260,6 +260,11 @@
     border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 10px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
+  .todo-list-completed .todo-item {
+    opacity: 0.55;
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.04);
+  }
   
   /* 氣泡溶解漂浮動畫 */
   .todo-item.dissolving {
@@ -488,8 +493,12 @@
       <button id="todoAddBtn"></button>
     </div>
     <div class="todo-list-wrapper" style="flex:1; overflow-y:auto; margin-top:16px; position:relative; min-height: 200px;">
-      <ul id="todoList" class="todo-list">
-        <!-- JS 動態生成 -->
+      <ul id="todoListActive" class="todo-list">
+        <!-- JS 未完成事項 -->
+      </ul>
+      <div id="todoCompletedHeader" style="display:none; margin: 20px 0 10px; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px;">今日已完成 (最多10筆)</div>
+      <ul id="todoListCompleted" class="todo-list todo-list-completed">
+        <!-- JS 今日已完成事項 -->
       </ul>
     </div>
   </div>
@@ -1061,11 +1070,29 @@ function setTheme(themeKey) {
 // ===== 待辦清單 CRUD 與溶解動畫 =====
 const todoInput = document.getElementById('todoInput');
 const todoAddBtn = document.getElementById('todoAddBtn');
-const todoList = document.getElementById('todoList');
 
 function getTodos() {
   try {
-    return JSON.parse(localStorage.getItem('lf_todo') || '[]');
+    let todos = JSON.parse(localStorage.getItem('lf_todo') || '[]');
+    const todayStr = new Date().toDateString();
+    let updated = false;
+    // 自動清理非今天的已完成事項 (隔天自動清除)
+    const filtered = todos.filter(t => {
+      if (t.checked) {
+        if (!t.completedAt) {
+          t.completedAt = Date.now();
+          updated = true;
+        }
+        const isToday = new Date(t.completedAt).toDateString() === todayStr;
+        if (!isToday) updated = true;
+        return isToday;
+      }
+      return true;
+    });
+    if (updated) {
+      saveTodos(filtered);
+    }
+    return filtered;
   } catch(e) {
     return [];
   }
@@ -1078,33 +1105,71 @@ function saveTodos(todos) {
 }
 
 function renderTodos() {
-  todoList.innerHTML = '';
+  const todoListActive = document.getElementById('todoListActive');
+  const todoListCompleted = document.getElementById('todoListCompleted');
+  const todoCompletedHeader = document.getElementById('todoCompletedHeader');
+  
+  if (!todoListActive || !todoListCompleted) return;
+  
+  todoListActive.innerHTML = '';
+  todoListCompleted.innerHTML = '';
+  
   const todos = getTodos();
-  todos.forEach(todo => {
+  
+  // 分離未完成與已完成
+  const activeTodos = todos.filter(t => !t.checked);
+  const completedTodos = todos.filter(t => t.checked);
+  
+  // 1. 渲染未完成
+  activeTodos.forEach(todo => {
     const li = document.createElement('li');
     li.className = 'todo-item';
     li.dataset.id = todo.id;
-    
     li.innerHTML = `
-      <div class="todo-checkbox ${todo.checked ? 'checked' : ''}"></div>
-      <span class="todo-text ${todo.checked ? 'checked' : ''}">${todo.text}</span>
+      <div class="todo-checkbox"></div>
+      <span class="todo-text">${todo.text}</span>
       <span class="todo-delete">&times;</span>
     `;
     
-    // 點擊核取方塊觸發溶解動畫
-    const cb = li.querySelector('.todo-checkbox');
-    cb.addEventListener('click', () => {
+    li.querySelector('.todo-checkbox').addEventListener('click', () => {
       toggleTodo(todo.id, li);
     });
-    
-    // 刪除
-    const del = li.querySelector('.todo-delete');
-    del.addEventListener('click', (e) => {
+    li.querySelector('.todo-delete').addEventListener('click', (e) => {
       e.stopPropagation();
       deleteTodo(todo.id, li);
     });
+    todoListActive.appendChild(li);
+  });
+  
+  // 2. 排序完成事項並限制最多 10 筆
+  completedTodos.sort((a, b) => b.completedAt - a.completedAt);
+  const displayedCompleted = completedTodos.slice(0, 10);
+  
+  if (displayedCompleted.length > 0) {
+    todoCompletedHeader.style.display = 'block';
+  } else {
+    todoCompletedHeader.style.display = 'none';
+  }
+  
+  // 3. 渲染已完成
+  displayedCompleted.forEach(todo => {
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.dataset.id = todo.id;
+    li.innerHTML = `
+      <div class="todo-checkbox checked"></div>
+      <span class="todo-text checked">${todo.text}</span>
+      <span class="todo-delete">&times;</span>
+    `;
     
-    todoList.appendChild(li);
+    li.querySelector('.todo-checkbox').addEventListener('click', () => {
+      toggleTodo(todo.id, li);
+    });
+    li.querySelector('.todo-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteTodo(todo.id, li);
+    });
+    todoListCompleted.appendChild(li);
   });
 }
 
@@ -1132,41 +1197,41 @@ function toggleTodo(id, liEl) {
   const idx = todos.findIndex(t => t.id === id);
   if(idx === -1) return;
   
-  const newChecked = !todos[idx].checked;
-  todos[idx].checked = newChecked;
-  saveTodos(todos);
+  const currentlyChecked = todos[idx].checked;
+  const newChecked = !currentlyChecked;
   
   if (newChecked) {
-    // 播放氣泡音效與溶解動畫
+    // 視覺上先標記已完成並觸發氣泡溶解動畫
     const textEl = liEl.querySelector('.todo-text');
     textEl.classList.add('checked');
     liEl.querySelector('.todo-checkbox').classList.add('checked');
     
-    // 獲取目前元素的位置
     const rect = liEl.getBoundingClientRect();
-    const wrapper = todoList.getBoundingClientRect();
+    const wrapper = document.getElementById('todoListActive').getBoundingClientRect();
     
-    // 將自定義動畫變數傳入 CSS
     liEl.style.setProperty('--start-bottom', (wrapper.bottom - rect.bottom) + 'px');
     liEl.style.setProperty('--drift-x', (Math.random() * 40 - 20) + 'px');
     liEl.style.setProperty('--drift-x-end', (Math.random() * 60 - 30) + 'px');
     
     liEl.classList.add('dissolving');
     
-    // 播放完成音效
     playTone(500 + Math.random()*300, 0.4, 0.04, 'sine', 0, 0.4);
     
+    // 更新資料庫中的屬性
+    todos[idx].checked = true;
+    todos[idx].completedAt = Date.now();
+    saveTodos(todos);
+    
     setTimeout(() => {
-      // 獲取最新的 todos 並排除此項
-      const currentTodos = getTodos();
-      const updatedTodos = currentTodos.filter(t => t.id !== id);
-      saveTodos(updatedTodos);
       liEl.remove();
+      renderTodos(); // 重新整理，將其移到今日已完成中！
     }, 1900);
   } else {
-    const textEl = liEl.querySelector('.todo-text');
-    textEl.classList.remove('checked');
-    liEl.querySelector('.todo-checkbox').classList.remove('checked');
+    // 反勾選 (移回未完成)
+    todos[idx].checked = false;
+    todos[idx].completedAt = null;
+    saveTodos(todos);
+    renderTodos();
   }
 }
 
