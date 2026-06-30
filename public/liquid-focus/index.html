@@ -11,6 +11,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #0a0a14;
     color:#fff;
+    transition: background-color 0.5s ease;
   }
   body { position:relative; }
 
@@ -33,10 +34,23 @@
     background: rgba(255,255,255,0.4);
     animation: rise linear infinite;
     z-index:3;
+    cursor: pointer;
+    touch-action: none;
   }
   @keyframes rise {
     0% { transform: translateY(0) translateX(0) scale(1); opacity:0.7; }
     100% { transform: translateY(-100dvh) translateX(var(--drift,0px)) scale(0.4); opacity:0; }
+  }
+
+  /* 氣泡點擊爆裂粒子 */
+  .pop-particle {
+    position: fixed; border-radius: 50%; background: rgba(255, 255, 255, 0.75);
+    pointer-events: none; z-index: 98;
+    animation: particlePop 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes particlePop {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
   }
 
   /* 中央內容層 */
@@ -94,32 +108,6 @@
     font-size:11px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; z-index:10;
   }
 
-  .ambient-bar {
-    position:fixed; bottom:58px; left:50%; transform:translateX(-50%);
-    display:flex; align-items:center; gap:7px; z-index:10;
-  }
-  .ambient-bar .ambient-label {
-    font-size:10px; color:rgba(255,255,255,0.35); letter-spacing:2px; margin-right:4px;
-  }
-  .ambient-opt {
-    font-size:11px; padding:6px 13px; border-radius:999px; cursor:pointer;
-    color:rgba(255,255,255,0.5); letter-spacing:1px; transition:all 0.25s;
-    border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(8px);
-  }
-  .ambient-opt.active { background:rgba(255,255,255,0.14); color:#fff; border-color:rgba(255,255,255,0.3); }
-
-  .ambient-vol {
-    -webkit-appearance:none; appearance:none; width:80px; height:4px;
-    border-radius:999px; background:rgba(255,255,255,0.18); cursor:pointer; outline:none;
-  }
-  .ambient-vol::-webkit-slider-thumb {
-    -webkit-appearance:none; appearance:none; width:14px; height:14px; border-radius:50%;
-    background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.4);
-  }
-  .ambient-vol::-moz-range-thumb {
-    width:14px; height:14px; border:none; border-radius:50%; background:#fff;
-  }
-
   /* 自訂時間輸入 */
   .custom-time {
     display:none; position:fixed; top:72px; left:50%; transform:translateX(-50%);
@@ -139,21 +127,172 @@
   }
 
   .percent-tag {
-    position:fixed; top:32px; right:32px; z-index:10;
+    position:fixed; top:32px; right:82px; z-index:10;
     font-size:13px; color:rgba(255,255,255,0.55); letter-spacing:1px;
     border:1px solid rgba(255,255,255,0.12); padding:7px 14px; border-radius:999px;
     backdrop-filter: blur(8px);
+    pointer-events: none;
   }
 
-  .sound-toggle {
-    position:fixed; top:32px; left:32px; z-index:10;
+  /* 浮動側欄按鈕 */
+  .floating-btn {
+    position:fixed; top:32px; z-index:10;
     width:34px; height:34px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05);
-    backdrop-filter: blur(8px); cursor:pointer; transition: all 0.25s;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor:pointer; transition: all 0.25s;
   }
-  .sound-toggle:hover { background:rgba(255,255,255,0.14); }
-  .sound-toggle svg { width:16px; height:16px; }
+  .floating-btn:hover { background:rgba(255,255,255,0.14); transform: scale(1.05); }
+  .floating-btn svg { width:16px; height:16px; stroke: white; }
+
+  /* 側欄面板 Drawers */
+  .drawer {
+    position: fixed; top: 0; height: 100vh; height: 100dvh; width: 320px; max-width: 85%;
+    background: rgba(10, 10, 20, 0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08); z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 24px; color: #fff; box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  }
+  .left-drawer { left: 0; transform: translateX(-100%); border-right: 1px solid rgba(255,255,255,0.08); }
+  .right-drawer { right: 0; transform: translateX(100%); border-left: 1px solid rgba(255,255,255,0.08); }
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none;
+    z-index: 99; transition: opacity 0.3s ease;
+  }
+  .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .drawer-header h2 { font-size: 16px; font-weight: 500; letter-spacing: 1px; }
+  .drawer-close { font-size: 26px; cursor: pointer; color: rgba(255,255,255,0.5); transition: color 0.2s; }
+  .drawer-close:hover { color: #fff; }
+
+  .drawer-content { overflow-y: auto; height: calc(100% - 40px); padding-right: 4px; }
+  .drawer-content::-webkit-scrollbar { width: 4px; }
+  .drawer-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
+
+  .setting-group {
+    border-bottom: 1px solid rgba(255,255,255,0.08); padding: 18px 0;
+  }
+  .setting-group:last-child { border-bottom: none; }
+  .setting-title { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; display: block; }
+  
+  .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; }
+  .setting-label-small { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+  /* 主題網格 */
+  .theme-grid { display: flex; gap: 12px; justify-content: flex-start; }
+  .theme-opt {
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.25);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+  }
+  .theme-opt:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.6); }
+  .theme-opt.active { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.4); transform: scale(1.1); }
+
+  /* 開關開關切換 */
+  .switch { position: relative; display: inline-block; width: 42px; height: 22px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.15);
+    border-radius: 99px; transition: .3s;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background-color: white; border-radius: 50%; transition: .3s;
+  }
+  input:checked + .slider { background-color: var(--accent, #5B4FFF); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  /* 背景音網格 */
+  .ambient-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ambient-opt-item {
+    font-size: 10.5px; padding: 7px 0; border-radius: 6px; cursor: pointer; text-align: center;
+    color: rgba(255,255,255,0.55); transition: all 0.2s; border: 1px solid rgba(255,255,255,0.12);
+  }
+  .ambient-opt-item:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .ambient-opt-item.active { background: rgba(255,255,255,0.14); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+  .ambient-vol-input {
+    -webkit-appearance: none; appearance: none; width: 100px; height: 4px;
+    border-radius: 999px; background: rgba(255,255,255,0.18); cursor: pointer; outline: none;
+  }
+  .ambient-vol-input::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  }
+  .ambient-vol-input::-moz-range-thumb {
+    width: 12px; height: 12px; border: none; border-radius: 50%; background: #fff;
+  }
+
+  .action-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff;
+    padding: 10px 20px; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .action-btn:hover { background: rgba(255,255,255,0.18); }
+
+  /* 待辦事項清單樣式 */
+  .todo-input-row { display: flex; gap: 8px; }
+  .todo-input-row input {
+    flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .todo-input-row input:focus { border-color: var(--accent, #5B4FFF); }
+  .todo-input-row button {
+    background: #fff; border: none; border-radius: 10px; width: 36px; height: 36px;
+    cursor: pointer; transition: transform 0.2s;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .todo-input-row button:hover { transform: scale(1.05); }
+  .todo-input-row button::before, .todo-input-row button::after {
+    content: ''; position: absolute; background: #1a1a2e;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    border-radius: 99px;
+  }
+  .todo-input-row button::before { width: 12px; height: 2px; }
+  .todo-input-row button::after { width: 2px; height: 12px; }
+
+  .todo-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; position: relative; }
+  .todo-item {
+    display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08); padding: 10px 12px; border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  /* 氣泡溶解漂浮動畫 */
+  .todo-item.dissolving {
+    pointer-events: none; border-radius: 50% !important; width: 44px !important; height: 44px !important; padding: 0 !important;
+    justify-content: center; background: rgba(255, 255, 255, 0.2) !important; border-color: rgba(255,255,255,0.4) !important;
+    color: transparent !important; text-shadow: none !important; box-shadow: 0 0 12px rgba(255,255,255,0.4);
+    animation: dissolveAndFloat 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    position: absolute; left: 50%; transform: translateX(-50%);
+  }
+  .todo-item.dissolving * { display: none !important; }
+  
+  @keyframes dissolveAndFloat {
+    0% { bottom: var(--start-bottom, 50px); opacity: 0.8; transform: translateX(-50%) scale(1); }
+    30% { border-radius: 50%; width: 36px; height: 36px; transform: translateX(calc(-50% + var(--drift-x, 0px))) scale(1.1); }
+    100% { bottom: 100dvh; opacity: 0; transform: translateX(calc(-50% + var(--drift-x-end, 0px) * 2)) scale(0.4); }
+  }
+
+  .todo-checkbox {
+    width: 17px; height: 17px; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .todo-checkbox:hover { border-color: #fff; }
+  .todo-checkbox.checked { background: #fff; border-color: #fff; }
+  .todo-checkbox.checked:after {
+    content: "✓"; color: #1a1a2e; font-size: 11px; font-weight: bold;
+  }
+  .todo-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.85); transition: color 0.2s; word-break: break-all; }
+  .todo-text.checked { text-decoration: line-through; color: rgba(255,255,255,0.35); }
+
+  .todo-delete {
+    color: rgba(255,255,255,0.3); cursor: pointer; transition: color 0.2s; font-size: 15px; padding: 2px;
+  }
+  .todo-delete:hover { color: #ff6b6b; }
 
   /* ===== 手機版響應式 ===== */
   @media (max-width: 600px) {
@@ -168,9 +307,8 @@
       top: max(20px, env(safe-area-inset-top));
       right:16px; font-size:11px; padding:6px 11px;
     }
-    .sound-toggle {
+    .floating-btn {
       top: max(20px, env(safe-area-inset-top));
-      left:16px; width:30px; height:30px;
     }
     .hud { gap:12px; }
     .phase-label { font-size:11px; letter-spacing:3px; }
@@ -185,7 +323,6 @@
     }
   }
 
-  /* 矮螢幕（如手機橫向）避免內容被壓扁 */
   @media (max-height: 480px) {
     .hud { gap:8px; }
     .time-display { font-size:clamp(36px, 10vh, 64px); }
@@ -194,7 +331,6 @@
     .hint { display:none; }
   }
 
-  /* 寬螢幕（桌面大螢幕）讓內容不要過度放大、維持精緻感 */
   @media (min-width: 1400px) {
     .time-display { font-size:96px; }
     .controls { gap:20px; }
@@ -219,16 +355,25 @@
 </div>
 <div class="vignette"></div>
 
+<!-- 頂部浮動數據 -->
 <div class="percent-tag" id="percentTag">0%</div>
 
-<div class="sound-toggle" id="soundToggle" title="開啟/關閉音效">
-  <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+<!-- 浮動按鈕 -->
+<div class="floating-btn" id="settingsBtn" title="開啟設定" style="left:32px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
   </svg>
 </div>
 
+<div class="floating-btn" id="todoBtn" title="待辦清單" style="right:32px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="9 11 12 14 22 4"></polyline>
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+  </svg>
+</div>
+
+<!-- 模式切換 -->
 <div class="mode-tabs">
   <span class="active" data-min="25">專注 25</span>
   <span data-min="5">短休 5</span>
@@ -236,12 +381,14 @@
   <span data-min="custom" id="customTab">自訂</span>
 </div>
 
+<!-- 自訂時間輸入 -->
 <div class="custom-time" id="customTime">
   <input type="number" id="customInput" min="1" max="180" value="25" />
   <span>分鐘</span>
   <button id="customApply">設定</button>
 </div>
 
+<!-- 中央核心面板 -->
 <div class="hud">
   <div class="phase-label" id="phaseLabel">專注時間</div>
   <div class="time-display" id="timeDisplay">25:00</div>
@@ -258,14 +405,101 @@
   </div>
 </div>
 
-<div class="ambient-bar" id="ambientBar">
-  <span class="ambient-label">背景音</span>
-  <span class="ambient-opt active" data-noise="off">關閉</span>
-  <span class="ambient-opt" data-noise="white">白噪音</span>
-  <span class="ambient-opt" data-noise="pink">粉紅噪音</span>
-  <span class="ambient-opt" data-noise="brown">棕噪音</span>
-  <input type="range" id="ambientVol" class="ambient-vol" min="0" max="100" value="60" title="背景音音量" />
+<!-- 側欄：設定 Left Drawer -->
+<div class="drawer left-drawer" id="settingsDrawer">
+  <div class="drawer-header">
+    <h2>設定 Settings</h2>
+    <span class="drawer-close" id="settingsClose">&times;</span>
+  </div>
+  <div class="drawer-content">
+    
+    <!-- 視覺配色 -->
+    <div class="setting-group">
+      <label class="setting-title">主題配色 Themes</label>
+      <div class="theme-grid">
+        <span class="theme-opt active" data-theme="default" title="預設 Aurora" style="background: linear-gradient(135deg, #5B4FFF, #FF4FB8);"></span>
+        <span class="theme-opt" data-theme="ocean" title="深海 Ocean" style="background: linear-gradient(135deg, #005c8a, #07dac0);"></span>
+        <span class="theme-opt" data-theme="forest" title="森林 Forest" style="background: linear-gradient(135deg, #1b4d3e, #66bb6a);"></span>
+        <span class="theme-opt" data-theme="volcano" title="烈焰 Volcano" style="background: linear-gradient(135deg, #800808, #ff5722);"></span>
+      </div>
+    </div>
+
+    <!-- 音效設定 -->
+    <div class="setting-group">
+      <div class="setting-row">
+        <span>系統音效 Ambient Sounds</span>
+        <label class="switch">
+          <input type="checkbox" id="soundToggleCheck" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row" style="margin-top:12px;">
+        <span>戳氣泡音效 Pop SFX</span>
+        <label class="switch">
+          <input type="checkbox" id="bubbleSoundCheck" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 背景噪音 -->
+    <div class="setting-group">
+      <label class="setting-title">背景氛圍音 Ambient Noises</label>
+      <div class="ambient-grid">
+        <span class="ambient-opt-item active" data-noise="off">關閉</span>
+        <span class="ambient-opt-item" data-noise="white">白噪音</span>
+        <span class="ambient-opt-item" data-noise="pink">粉紅噪</span>
+        <span class="ambient-opt-item" data-noise="brown">棕噪音</span>
+        <span class="ambient-opt-item" data-noise="rain">即時雨聲</span>
+        <span class="ambient-opt-item" data-noise="ocean">即時海浪</span>
+        <span class="ambient-opt-item" data-noise="binaural">雙耳節拍</span>
+      </div>
+      <div class="setting-row" style="margin-top:14px;">
+        <span class="setting-label-small">背景音量 Volume</span>
+        <input type="range" id="drawerAmbientVol" class="ambient-vol-input" min="0" max="100" value="60" />
+      </div>
+    </div>
+
+    <!-- 進階工具 -->
+    <div class="setting-group">
+      <label class="setting-title">進階工具 Advanced</label>
+      <div class="setting-row" style="margin-bottom: 14px;">
+        <span>行動端液體陀螺儀</span>
+        <label class="switch">
+          <input type="checkbox" id="gyroToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button id="pipBtn" class="action-btn" style="width:100%;">開啟畫中畫懸浮時鐘</button>
+    </div>
+
+  </div>
 </div>
+
+<!-- 側欄：待辦清單 Right Drawer -->
+<div class="drawer right-drawer" id="todoDrawer">
+  <div class="drawer-header">
+    <h2>待辦清單 Tasks</h2>
+    <span class="drawer-close" id="todoClose">&times;</span>
+  </div>
+  <div class="drawer-content" style="display:flex; flex-direction:column; height:calc(100% - 40px);">
+    <div class="todo-input-row">
+      <input type="text" id="todoInput" placeholder="新增專注任務..." maxlength="50" />
+      <button id="todoAddBtn"></button>
+    </div>
+    <div class="todo-list-wrapper" style="flex:1; overflow-y:auto; margin-top:16px; position:relative; min-height: 200px;">
+      <ul id="todoList" class="todo-list">
+        <!-- JS 動態生成 -->
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 遮罩層 Overlay -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- 隱藏 Canvas (PiP 渲染) -->
+<canvas id="pipCanvas" width="300" height="300" style="display:none;"></canvas>
 
 <div class="hint">整個畫面就是進度 · 液體滿溢即完成</div>
 
@@ -277,6 +511,35 @@ let running = false;
 let waveOffset = 0;
 let slowDrift = 0;
 let soundOn = true;
+
+// ===== 主題配色預設集 =====
+const THEMES = {
+  default: {
+    start: ['#5B4FFF', '#B14FFF', '#FF4FB8'],
+    end: ['#FF6B4F', '#FFB14F', '#FFE14F'],
+    accent: '#5B4FFF',
+    bg: '#0a0a14'
+  },
+  ocean: {
+    start: ['#005c8a', '#007b99', '#07dac0'],
+    end: ['#00a8cc', '#00c9c8', '#a1eafb'],
+    accent: '#07dac0',
+    bg: '#05131a'
+  },
+  forest: {
+    start: ['#1b4d3e', '#297a5b', '#66bb6a'],
+    end: ['#388e3c', '#81c784', '#a8ff78'],
+    accent: '#66bb6a',
+    bg: '#08140e'
+  },
+  volcano: {
+    start: ['#800808', '#b71c1c', '#ff5722'],
+    end: ['#d32f2f', '#ff8a65', '#f5af19'],
+    accent: '#ff5722',
+    bg: '#140606'
+  }
+};
+let currentTheme = 'default';
 
 // ===== 音效系統：Web Audio API 即時合成，含柔和殘響 =====
 let audioCtx = null, masterGain = null, reverbSend = null;
@@ -342,17 +605,41 @@ function playPauseSound(){
   playTone(294, 0.4, 0.07, 'sine');
 }
 
-// 氣泡音：音高快速下滑的 sine，做出水滴「啵」聲（不再用噪音，避免沙沙刺耳）
-function playBubbleSound(){
-  if(!soundOn || Math.random() > 0.28) return;
+// 啵啵音效 (戳氣泡專用)
+const bubbleSoundCheck = document.getElementById('bubbleSoundCheck');
+function playPopSound(){
+  if(!soundOn || !bubbleSoundCheck.checked) return;
   ensureAudio();
   const t0 = audioCtx.currentTime;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.type = 'sine';
-  const f0 = 900 + Math.random()*700;       // 起始音高
+  
+  // 快速向上滑音，產生水泡「啵」聲
+  const startF = 700 + Math.random() * 500;
+  osc.frequency.setValueAtTime(startF, t0);
+  osc.frequency.exponentialRampToValueAtTime(startF * 1.8, t0 + 0.05);
+  
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.08, t0 + 0.005);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+  
+  osc.connect(gain).connect(masterGain);
+  osc.start(t0);
+  osc.stop(t0 + 0.08);
+}
+
+// 氣泡音 (隨機浮空泡泡專用)
+function playAmbientBubbleSound(){
+  if(!soundOn || ambientType === 'off' || Math.random() > 0.28) return;
+  ensureAudio();
+  const t0 = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  const f0 = 900 + Math.random()*700;       
   osc.frequency.setValueAtTime(f0, t0);
-  osc.frequency.exponentialRampToValueAtTime(f0*0.45, t0+0.12); // 快速下滑＝水滴感
+  osc.frequency.exponentialRampToValueAtTime(f0*0.45, t0+0.12); 
   gain.gain.setValueAtTime(0.0001, t0);
   gain.gain.exponentialRampToValueAtTime(0.06, t0+0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.18);
@@ -373,18 +660,52 @@ function playCompleteSound(){
   playTone(587.33, 2.6, 0.07, 'sine', 0.24, 0.8);  // D5
 }
 
-// ===== 背景白噪音（可即時切換試聽）=====
-let ambientSource = null, ambientGain = null, ambientType = 'off';
+// ===== 背景白噪音與自然音效合成器 =====
+let ambientType = 'off';
+let ambientVolume = 0.6;
 
-// 生成 4 秒可循環的噪音緩衝；type: white / pink / brown
+// 音訊節點參考
+let rainInterval = null;
+let rainBgSource = null;
+let oceanNoiseSource = null;
+let oceanLfo = null;
+let binauralOscL = null;
+let binauralOscR = null;
+let stdNoiseSource = null;
+
+let ambientGain = null; // 背景音專用增益節點
+
+function stopAllAmbient(){
+  if(stdNoiseSource){ try { stdNoiseSource.stop() } catch(e){} stdNoiseSource = null; }
+  if(rainBgSource){ try { rainBgSource.stop() } catch(e){} rainBgSource = null; }
+  if(oceanNoiseSource){ try { oceanNoiseSource.stop() } catch(e){} oceanNoiseSource = null; }
+  if(oceanLfo){ try { oceanLfo.stop() } catch(e){} oceanLfo = null; }
+  if(binauralOscL){ try { binauralOscL.stop() } catch(e){} binauralOscL = null; }
+  if(binauralOscR){ try { binauralOscR.stop() } catch(e){} binauralOscR = null; }
+  if(rainInterval){ clearInterval(rainInterval); rainInterval = null; }
+}
+
+// 各背景音基本響度平衡系數
+function ambientTarget(type){
+  const base = type==='white' ? 0.08 
+             : type==='pink' ? 0.16 
+             : type==='brown' ? 0.30 
+             : type==='rain' ? 0.22 
+             : type==='ocean' ? 0.35 
+             : type==='binaural' ? 0.18 
+             : 0;
+  return base * ambientVolume;
+}
+
+// 生成 4 秒可循環的噪聲 Buffer (單聲道)
 function makeNoiseBuffer(type){
+  ensureAudio();
   const len = audioCtx.sampleRate * 4;
   const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
   const d = buf.getChannelData(0);
   if(type === 'white'){
     for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
   } else if(type === 'pink'){
-    // Paul Kellet 粉紅噪音近似
     let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
     for(let i=0;i<len;i++){
       const w = Math.random()*2-1;
@@ -393,7 +714,7 @@ function makeNoiseBuffer(type){
       b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
       d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11; b6=w*0.115926;
     }
-  } else { // brown：積分白噪音，低頻偏多、最柔
+  } else { // brown
     let last=0;
     for(let i=0;i<len;i++){
       const w = Math.random()*2-1;
@@ -406,63 +727,523 @@ function makeNoiseBuffer(type){
 function setAmbient(type){
   ambientType = type;
   ensureAudio();
-  // 先淡出停掉舊的
-  if(ambientSource){
-    try {
-      ambientGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      ambientGain.gain.setValueAtTime(ambientGain.gain.value, audioCtx.currentTime);
-      ambientGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.3);
-      const old = ambientSource; setTimeout(()=>{ try{old.stop()}catch(e){} }, 350);
-    } catch(e){}
-    ambientSource = null;
-  }
+  
+  // 1. 停止目前所有播放中的節點
+  stopAllAmbient();
+
   if(type === 'off') return;
-  const src = audioCtx.createBufferSource();
-  src.buffer = makeNoiseBuffer(type);
-  src.loop = true;
-  ambientGain = audioCtx.createGain();
+
+  // 2. 初始化背景音專用增益節點（如果尚未建立）
+  if(!ambientGain) {
+    ambientGain = audioCtx.createGain();
+    ambientGain.connect(masterGain);
+  }
+  
+  // 設定目標音量
   ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  ambientGain.gain.linearRampToValueAtTime(ambientTarget(type), audioCtx.currentTime+0.4);
-  src.connect(ambientGain).connect(masterGain);
-  src.start();
-  ambientSource = src;
+  ambientGain.gain.linearRampToValueAtTime(ambientTarget(type), audioCtx.currentTime + 0.6);
+
+  // 3. 根據類型建立合成節點
+  if(type === 'white' || type === 'pink' || type === 'brown'){
+    // 標準噪聲
+    stdNoiseSource = audioCtx.createBufferSource();
+    stdNoiseSource.buffer = makeNoiseBuffer(type);
+    stdNoiseSource.loop = true;
+    stdNoiseSource.connect(ambientGain);
+    stdNoiseSource.start();
+  } 
+  else if(type === 'ocean'){
+    // 即時海浪聲：LFO 調變棕噪音
+    oceanNoiseSource = audioCtx.createBufferSource();
+    oceanNoiseSource.buffer = makeNoiseBuffer('brown');
+    oceanNoiseSource.loop = true;
+
+    const waveLfo = audioCtx.createOscillator();
+    waveLfo.frequency.value = 0.12; // 約 8 秒一個週期
+
+    const waveLfoGain = audioCtx.createGain();
+    waveLfoGain.gain.value = 0.35; // 音量波動深度
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 350; // 基礎濾波器頻率
+
+    const filterLfoGain = audioCtx.createGain();
+    filterLfoGain.gain.value = 220; // 濾波截止頻率擺幅
+
+    const vGain = audioCtx.createGain();
+    vGain.gain.value = 0.55; // 基礎音量
+
+    // 連結：LFO 影響音量與濾波
+    waveLfo.connect(waveLfoGain).connect(vGain.gain);
+    waveLfo.connect(filterLfoGain).connect(filter.frequency);
+    
+    oceanNoiseSource.connect(filter).connect(vGain).connect(ambientGain);
+    
+    waveLfo.start();
+    oceanNoiseSource.start();
+    
+    oceanLfo = waveLfo;
+  }
+  else if(type === 'rain'){
+    // 即時雨聲：粉噪音背景 + 隨機合成雨點
+    rainBgSource = audioCtx.createBufferSource();
+    rainBgSource.buffer = makeNoiseBuffer('pink');
+    rainBgSource.loop = true;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 700; // 沉悶的背景雨聲
+    
+    rainBgSource.connect(filter).connect(ambientGain);
+    rainBgSource.start();
+
+    // 隨機調度個別雨滴「滴答」聲
+    rainInterval = setInterval(() => {
+      if (ambientType !== 'rain' || !audioCtx) return;
+      const drops = Math.floor(Math.random() * 3) + 1;
+      const t0 = audioCtx.currentTime;
+      for (let i = 0; i < drops; i++) {
+        const delay = Math.random() * 0.12;
+        const osc = audioCtx.createOscillator();
+        const dGain = audioCtx.createGain();
+        const bp = audioCtx.createBiquadFilter();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000 + Math.random() * 2200, t0 + delay);
+        
+        bp.type = 'bandpass';
+        bp.frequency.value = 2800;
+        bp.Q.value = 4;
+
+        dGain.gain.setValueAtTime(0.0001, t0 + delay);
+        dGain.gain.exponentialRampToValueAtTime(0.006 + Math.random()*0.015, t0 + delay + 0.002);
+        dGain.gain.exponentialRampToValueAtTime(0.0001, t0 + delay + 0.025);
+
+        osc.connect(bp).connect(dGain).connect(ambientGain);
+        osc.start(t0 + delay);
+        osc.stop(t0 + delay + 0.035);
+      }
+    }, 90);
+  }
+  else if(type === 'binaural'){
+    // 雙耳節拍：左耳 200Hz，右耳 210Hz (感知差值 10Hz Alpha 波)
+    binauralOscL = audioCtx.createOscillator();
+    binauralOscL.type = 'sine';
+    binauralOscL.frequency.value = 200;
+
+    binauralOscR = audioCtx.createOscillator();
+    binauralOscR.type = 'sine';
+    binauralOscR.frequency.value = 210;
+
+    const pannerL = audioCtx.createStereoPanner();
+    pannerL.pan.value = -1; // 完全左聲道
+
+    const pannerR = audioCtx.createStereoPanner();
+    pannerR.pan.value = 1;  // 完全右聲道
+
+    binauralOscL.connect(pannerL).connect(ambientGain);
+    binauralOscR.connect(pannerR).connect(ambientGain);
+
+    binauralOscL.start();
+    binauralOscR.start();
+  }
 }
 
-// 各噪音感受響度不同，先平衡再乘上使用者音量(0~1)
-let ambientVolume = 0.6;
-function ambientTarget(type){
-  const base = type==='white' ? 0.08 : type==='pink' ? 0.16 : 0.30;
-  return base * ambientVolume;
-}
+// ===== 陀螺儀液體傾斜控制 =====
+let gyroEnabled = false;
+let tiltAngle = 0;
+let targetTiltAngle = 0;
 
-const ambientVol = document.getElementById('ambientVol');
-ambientVol.addEventListener('input', ()=>{
-  ambientVolume = ambientVol.value/100;
-  if(ambientSource && ambientType!=='off'){
-    ambientGain.gain.setTargetAtTime(ambientTarget(ambientType), audioCtx.currentTime, 0.05);
+const gyroToggle = document.getElementById('gyroToggle');
+gyroToggle.addEventListener('change', () => {
+  if (gyroToggle.checked) {
+    initGyro();
+  } else {
+    gyroEnabled = false;
+    targetTiltAngle = 0;
   }
 });
 
-document.querySelectorAll('.ambient-opt').forEach(opt=>{
-  opt.addEventListener('click', ()=>{
-    document.querySelectorAll('.ambient-opt').forEach(o=>o.classList.remove('active'));
+function initGyro() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(state => {
+        if (state === 'granted') {
+          window.addEventListener('deviceorientation', handleOrientation);
+          gyroEnabled = true;
+        } else {
+          gyroToggle.checked = false;
+          gyroEnabled = false;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        gyroToggle.checked = false;
+        gyroEnabled = false;
+      });
+  } else {
+    window.addEventListener('deviceorientation', handleOrientation);
+    gyroEnabled = true;
+  }
+}
+
+function handleOrientation(e) {
+  if (!gyroToggle.checked) return;
+  if (e.gamma !== null) {
+    // 限制最大傾斜角度約 45 度 (PI/4)，以 radians 計算
+    let rad = (e.gamma / 90) * (Math.PI / 4);
+    targetTiltAngle = Math.max(-Math.PI/4, Math.min(Math.PI/4, rad));
+  }
+}
+
+// 滑鼠移動模擬液體傾斜 (PC 端專用)
+  window.addEventListener('mousemove', (e) => {
+    if (gyroEnabled && gyroToggle.checked) return; // 陀螺儀啟用時優先使用陀螺儀
+    
+    // 取得滑鼠在視窗寬度比例 (0 ~ 1)
+    const pct = e.clientX / window.innerWidth;
+    // 映射到 -60 ~ 60 度擺幅 (約 -1 ~ 1 rad)
+    const angle = (pct - 0.5) * (Math.PI / 3);
+    targetTiltAngle = angle;
+  });
+
+  // 滑鼠移出視窗時水平復原
+  window.addEventListener('mouseleave', () => {
+    if (gyroEnabled && gyroToggle.checked) return;
+    targetTiltAngle = 0;
+  });
+
+// ===== 畫中畫 (PiP) 懸浮時鐘 =====
+const pipCanvas = document.getElementById('pipCanvas');
+const pipCtx = pipCanvas.getContext('2d');
+let pipVideo = null;
+let pipActive = false;
+const pipBtn = document.getElementById('pipBtn');
+
+function updatePiPCanvas() {
+  if (!pipActive) return;
+  
+  const theme = THEMES[currentTheme];
+  // 1. 繪製背景
+  pipCtx.fillStyle = theme.bg;
+  pipCtx.fillRect(0, 0, 300, 300);
+  
+  const progress = 1 - (remaining/totalSeconds);
+  const cx = 150, cy = 150, r = 115;
+  
+  // 2. 圓形進度條底軌
+  pipCtx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  pipCtx.lineWidth = 12;
+  pipCtx.beginPath();
+  pipCtx.arc(cx, cy, r, 0, Math.PI * 2);
+  pipCtx.stroke();
+  
+  // 3. 漸層波浪進度
+  const grad = pipCtx.createLinearGradient(0, 300, 300, 0);
+  grad.addColorStop(0, theme.start[0]);
+  grad.addColorStop(0.5, theme.start[1]);
+  grad.addColorStop(1, theme.start[2]);
+  
+  pipCtx.strokeStyle = grad;
+  pipCtx.lineWidth = 12;
+  pipCtx.lineCap = 'round';
+  pipCtx.beginPath();
+  pipCtx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * Math.max(progress, 0.001)));
+  pipCtx.stroke();
+  
+  // 4. 時間字樣
+  pipCtx.fillStyle = '#ffffff';
+  pipCtx.font = '200 48px sans-serif';
+  pipCtx.textAlign = 'center';
+  pipCtx.textBaseline = 'middle';
+  pipCtx.fillText(formatTime(remaining), cx, cy - 8);
+  
+  // 5. 階段標籤
+  pipCtx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  pipCtx.font = '500 15px sans-serif';
+  pipCtx.fillText(phaseLabel.textContent, cx, cy + 34);
+}
+
+async function startPiP() {
+  if ('pictureInPictureEnabled' in document) {
+    try {
+      if (!pipVideo) {
+        pipVideo = document.createElement('video');
+        pipVideo.muted = true;
+        pipVideo.playsInline = true;
+        
+        // 捕獲 canvas 串流 (10 幀/秒)
+        const stream = pipCanvas.captureStream(10);
+        pipVideo.srcObject = stream;
+        
+        pipVideo.addEventListener('leavepictureinpicture', () => {
+          pipActive = false;
+          pipBtn.textContent = '開啟畫中畫懸浮時鐘';
+        });
+      }
+      
+      pipActive = true;
+      updatePiPCanvas();
+      await pipVideo.play();
+      await pipVideo.requestPictureInPicture();
+      pipBtn.textContent = '關閉畫中畫懸浮時鐘';
+    } catch (err) {
+      console.error('PiP error:', err);
+      pipActive = false;
+      alert('無法啟用畫中畫，請確認點擊時無阻擋或瀏覽器相容性');
+    }
+  } else {
+    alert('此瀏覽器不支援 Picture-in-Picture 功能');
+  }
+}
+
+async function togglePiP() {
+  if (document.pictureInPictureElement) {
+    await document.exitPictureInPicture();
+    pipActive = false;
+  } else {
+    await startPiP();
+  }
+}
+pipBtn.addEventListener('click', togglePiP);
+
+// ===== 側欄滑出面板 (Drawers) 交互 =====
+const settingsBtn = document.getElementById('settingsBtn');
+const todoBtn = document.getElementById('todoBtn');
+const settingsDrawer = document.getElementById('settingsDrawer');
+const todoDrawer = document.getElementById('todoDrawer');
+const drawerOverlay = document.getElementById('drawerOverlay');
+const settingsClose = document.getElementById('settingsClose');
+const todoClose = document.getElementById('todoClose');
+
+function openDrawer(drawer) {
+  drawer.classList.add('open');
+  drawerOverlay.classList.add('active');
+}
+
+function closeAllDrawers() {
+  settingsDrawer.classList.remove('open');
+  todoDrawer.classList.remove('open');
+  drawerOverlay.classList.remove('active');
+}
+
+settingsBtn.addEventListener('click', () => openDrawer(settingsDrawer));
+todoBtn.addEventListener('click', () => openDrawer(todoDrawer));
+settingsClose.addEventListener('click', closeAllDrawers);
+todoClose.addEventListener('click', closeAllDrawers);
+drawerOverlay.addEventListener('click', closeAllDrawers);
+
+// ===== 視覺配色選擇器 =====
+document.querySelectorAll('.theme-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    setTheme(opt.dataset.theme);
+  });
+});
+
+function setTheme(themeKey) {
+  if (!THEMES[themeKey]) return;
+  currentTheme = themeKey;
+  const t = THEMES[themeKey];
+  
+  // 更新 CSS 變數
+  document.documentElement.style.setProperty('--accent', t.accent);
+  document.body.style.backgroundColor = t.bg;
+  
+  // 強制重新渲染波浪
+  drawWave();
+  updatePiPCanvas();
+  saveSettings();
+}
+
+// ===== 待辦清單 CRUD 與溶解動畫 =====
+const todoInput = document.getElementById('todoInput');
+const todoAddBtn = document.getElementById('todoAddBtn');
+const todoList = document.getElementById('todoList');
+
+function getTodos() {
+  try {
+    return JSON.parse(localStorage.getItem('lf_todo') || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveTodos(todos) {
+  try {
+    localStorage.setItem('lf_todo', JSON.stringify(todos));
+  } catch(e){}
+}
+
+function renderTodos() {
+  todoList.innerHTML = '';
+  const todos = getTodos();
+  todos.forEach(todo => {
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.dataset.id = todo.id;
+    
+    li.innerHTML = `
+      <div class="todo-checkbox ${todo.checked ? 'checked' : ''}"></div>
+      <span class="todo-text ${todo.checked ? 'checked' : ''}">${todo.text}</span>
+      <span class="todo-delete">&times;</span>
+    `;
+    
+    // 點擊核取方塊觸發溶解動畫
+    const cb = li.querySelector('.todo-checkbox');
+    cb.addEventListener('click', () => {
+      toggleTodo(todo.id, li);
+    });
+    
+    // 刪除
+    const del = li.querySelector('.todo-delete');
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteTodo(todo.id, li);
+    });
+    
+    todoList.appendChild(li);
+  });
+}
+
+function addTodo() {
+  const text = todoInput.value.trim();
+  if(!text) return;
+  const todos = getTodos();
+  todos.push({
+    id: Date.now(),
+    text,
+    checked: false
+  });
+  saveTodos(todos);
+  todoInput.value = '';
+  renderTodos();
+}
+
+todoAddBtn.addEventListener('click', addTodo);
+todoInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') addTodo();
+});
+
+function toggleTodo(id, liEl) {
+  let todos = getTodos();
+  const idx = todos.findIndex(t => t.id === id);
+  if(idx === -1) return;
+  
+  const newChecked = !todos[idx].checked;
+  todos[idx].checked = newChecked;
+  saveTodos(todos);
+  
+  if (newChecked) {
+    // 播放氣泡音效與溶解動畫
+    const textEl = liEl.querySelector('.todo-text');
+    textEl.classList.add('checked');
+    liEl.querySelector('.todo-checkbox').classList.add('checked');
+    
+    // 獲取目前元素的位置
+    const rect = liEl.getBoundingClientRect();
+    const wrapper = todoList.getBoundingClientRect();
+    
+    // 將自定義動畫變數傳入 CSS
+    liEl.style.setProperty('--start-bottom', (wrapper.bottom - rect.bottom) + 'px');
+    liEl.style.setProperty('--drift-x', (Math.random() * 40 - 20) + 'px');
+    liEl.style.setProperty('--drift-x-end', (Math.random() * 60 - 30) + 'px');
+    
+    liEl.classList.add('dissolving');
+    
+    // 播放完成音效
+    playTone(500 + Math.random()*300, 0.4, 0.04, 'sine', 0, 0.4);
+    
+    setTimeout(() => {
+      // 獲取最新的 todos 並排除此項
+      const currentTodos = getTodos();
+      const updatedTodos = currentTodos.filter(t => t.id !== id);
+      saveTodos(updatedTodos);
+      liEl.remove();
+    }, 1900);
+  } else {
+    const textEl = liEl.querySelector('.todo-text');
+    textEl.classList.remove('checked');
+    liEl.querySelector('.todo-checkbox').classList.remove('checked');
+  }
+}
+
+function deleteTodo(id, liEl) {
+  liEl.style.opacity = '0';
+  liEl.style.transform = 'scale(0.8)';
+  setTimeout(() => {
+    const todos = getTodos().filter(t => t.id !== id);
+    saveTodos(todos);
+    liEl.remove();
+  }, 250);
+}
+
+// 首次渲染待辦事項
+renderTodos();
+
+// ===== 系統開關監聽 =====
+const soundToggleCheck = document.getElementById('soundToggleCheck');
+soundToggleCheck.addEventListener('change', () => {
+  soundOn = soundToggleCheck.checked;
+  if(soundOn) ensureAudio();
+});
+
+const drawerAmbientVol = document.getElementById('drawerAmbientVol');
+drawerAmbientVol.addEventListener('input', () => {
+  ambientVolume = drawerAmbientVol.value / 100;
+  if(ambientGain && ambientType !== 'off'){
+    ambientGain.gain.setTargetAtTime(ambientTarget(ambientType), audioCtx.currentTime, 0.05);
+  }
+  saveSettings();
+});
+
+document.querySelectorAll('.ambient-opt-item').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.ambient-opt-item').forEach(o => o.classList.remove('active'));
     opt.classList.add('active');
     setAmbient(opt.dataset.noise);
   });
 });
 
-const soundToggle = document.getElementById('soundToggle');
-const soundIcon = document.getElementById('soundIcon');
-soundToggle.addEventListener('click', ()=>{
-  soundOn = !soundOn;
-  if(soundOn){
-    soundIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`;
-    ensureAudio();
-  } else {
-    soundIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
+// ===== 氣泡手動戳擊效果 =====
+function createPopParticles(x, y) {
+  const count = 6;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'pop-particle';
+    const size = 3 + Math.random() * 5;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    
+    // 隨機發射角度與距離
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 20 + Math.random() * 30;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+    
+    p.style.setProperty('--dx', dx + 'px');
+    p.style.setProperty('--dy', dy + 'px');
+    
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 500);
   }
-});
+}
 
+function triggerBubblePop(b) {
+  const rect = b.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  
+  playPopSound();
+  createPopParticles(x, y);
+  b.remove();
+}
+
+// ===== 系統定時器核心 =====
 const timeDisplay = document.getElementById('timeDisplay');
 const phaseLabel = document.getElementById('phaseLabel');
 const percentTag = document.getElementById('percentTag');
@@ -481,7 +1262,7 @@ function formatTime(s){
   return `${m}:${sec}`;
 }
 
-// 顏色組：冷色(開始) -> 暖色(完成)
+// 顏色過渡
 function lerpColor(a, b, t){
   const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
   const ar = (ah>>16)&255, ag=(ah>>8)&255, ab=ah&255;
@@ -490,24 +1271,27 @@ function lerpColor(a, b, t){
   return '#'+[rr,rg,rb].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
+// 繪製波浪
 function drawWave(){
   const progress = 1 - (remaining/totalSeconds);
   const liquidHeightPct = Math.max(progress, 0.015);
   const baseY = 1000 * (1 - liquidHeightPct);
   const baseAmp = running ? 9 : 2.5;
 
-  // 只疊加 2 層低頻波（去除高頻尖角），並用平滑曲線連接取代折線
-  // 模擬液體表面張力造成的圓滑過渡
+  // 根據陀螺儀角度與基礎波浪疊加
   const points = [];
   for(let x=0; x<=1000; x+=20){
-    const y = baseY
+    const xN = (x - 500) / 500; // -1 ~ 1
+     // 計算重力擺幅 (加大 PC/行動端 視覺效果)
+     const tiltOffset = xN * Math.sin(tiltAngle) * 450;
+    
+    const y = baseY + tiltOffset
       + Math.sin((x/420)*2*Math.PI + waveOffset) * baseAmp
       + Math.sin((x/180)*2*Math.PI - waveOffset*1.4 + slowDrift) * baseAmp*0.35;
     points.push([x, y]);
   }
 
   let d = `M0,${points[0][1].toFixed(1)}`;
-  // 用 Catmull-Rom 轉貝茲的方式畫平滑曲線
   for(let i=0; i<points.length-1; i++){
     const p0 = points[Math.max(i-1,0)];
     const p1 = points[i];
@@ -522,9 +1306,11 @@ function drawWave(){
   d += ` L1000,1000 L0,1000 Z`;
   wavePath.setAttribute('d', d);
 
-  stop1.setAttribute('stop-color', lerpColor('#5B4FFF', '#FF6B4F', progress));
-  stop2.setAttribute('stop-color', lerpColor('#B14FFF', '#FFB14F', progress));
-  stop3.setAttribute('stop-color', lerpColor('#FF4FB8', '#FFE14F', progress));
+  // 套用主題漸層
+  const theme = THEMES[currentTheme];
+  stop1.setAttribute('stop-color', lerpColor(theme.start[0], theme.end[0], progress));
+  stop2.setAttribute('stop-color', lerpColor(theme.start[1], theme.end[1], progress));
+  stop3.setAttribute('stop-color', lerpColor(theme.start[2], theme.end[2], progress));
 
   percentTag.textContent = Math.round(progress*100)+'%';
 }
@@ -532,25 +1318,49 @@ function drawWave(){
 function spawnBubble(){
   if(!running) return;
   const b = document.createElement('div');
-  const size = 5 + Math.random()*14;
+  const size = 6 + Math.random()*15;
   b.className = 'bubble';
   b.style.width = size+'px';
   b.style.height = size+'px';
   b.style.left = (Math.random()*window.innerWidth)+'px';
   b.style.setProperty('--drift', (Math.random()*60-30)+'px');
   b.style.animationDuration = (4+Math.random()*3)+'s';
+  
+  // 綁定手動戳氣泡事件 (pointerdown 比 click 更加靈敏)
+  b.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    triggerBubblePop(b);
+  });
+  
   bubbleLayer.appendChild(b);
-  setTimeout(()=> b.remove(), 8000);
+  setTimeout(()=> { if (b.parentNode) b.remove(); }, 8000);
 }
 setInterval(spawnBubble, 350);
 
+// 核心渲染迴圈
 function tick(){
   waveOffset += running ? 0.045 : 0.012;
   slowDrift += 0.006;
+  
+  // 平滑插值更新液體傾斜角度 (支援陀螺儀與 PC 滑鼠移動)
+  tiltAngle += (targetTiltAngle - tiltAngle) * 0.08;
+  
   drawWave();
+  
+  // 更新 PiP 時鐘
+  if (pipActive) {
+    updatePiPCanvas();
+  }
+  
   requestAnimationFrame(tick);
 }
 tick();
+
+// 定期播放氣泡水滴音效
+setInterval(() => {
+  if (running) playAmbientBubbleSound();
+}, 2500);
 
 function startTimer(){
   if(running) return;
@@ -597,9 +1407,9 @@ const customTab = document.getElementById('customTab');
 const autoLoopChk = document.getElementById('autoLoop');
 const tomatoCountEl = document.getElementById('tomatoCount');
 
-let isFocusPhase = true;   // 目前階段：專注 or 休息
-let focusMin = 25;         // 記住的專注時長（自訂會更新）
-let pomodoroCount = 0;     // 今日完成的番茄數
+let isFocusPhase = true;   
+let focusMin = 25;         
+let pomodoroCount = 0;     
 const PAGE_TITLE = 'Liquid Focus — 液態番茄鐘';
 
 function updateTitle(){
@@ -627,7 +1437,7 @@ tabs.forEach(tab=>{
     tab.classList.add('active');
 
     if(tab.dataset.min === 'custom'){
-      customTime.classList.add('show');   // 顯示自訂輸入
+      customTime.classList.add('show');   
       customInput.focus();
       return;
     }
@@ -655,7 +1465,7 @@ autoLoopChk.addEventListener('change', saveSettings);
 
 function refreshTomato(){ tomatoCountEl.textContent = '🍅 × ' + pomodoroCount; }
 
-// ===== 通知 =====
+// ===== 系統推播通知 =====
 function requestNotify(){
   if('Notification' in window && Notification.permission === 'default'){
     Notification.requestPermission();
@@ -695,7 +1505,7 @@ function celebrate(){
     let nextMin, nextLabel, nextFocus;
     if(finishedFocus){
       nextFocus = false;
-      const isLong = pomodoroCount % 4 === 0;   // 每 4 顆番茄給長休
+      const isLong = pomodoroCount % 4 === 0;   
       nextMin = isLong ? 15 : 5;
       nextLabel = isLong ? '長休息' : '短休息';
     } else {
@@ -706,8 +1516,10 @@ function celebrate(){
   }
 }
 
-// ===== 設定保存（localStorage）=====
+// ===== 設定保存與讀取 (localStorage) =====
+let isLoadingSettings = false;
 function saveSettings(){
+  if (isLoadingSettings) return;
   try {
     localStorage.setItem('lf_settings', JSON.stringify({
       focusMin,
@@ -715,23 +1527,33 @@ function saveSettings(){
       ambientVolume,
       pomodoroCount,
       countDate: new Date().toDateString(),
+      currentTheme,
+      ambientType,
+      soundOn,
+      bubbleSoundOn: bubbleSoundCheck.checked
     }));
   } catch(e){}
 }
+
 function loadSettings(){
+  isLoadingSettings = true;
   try {
     const s = JSON.parse(localStorage.getItem('lf_settings') || '{}');
+    
+    // 恢復音量
     if(typeof s.ambientVolume === 'number'){
       ambientVolume = s.ambientVolume;
-      ambientVol.value = Math.round(ambientVolume*100);
+      drawerAmbientVol.value = Math.round(ambientVolume*100);
     }
+    
+    // 恢復循環與計數
     if(s.autoLoop) autoLoopChk.checked = true;
-    // 番茄數：僅同一天才沿用
     if(s.pomodoroCount && s.countDate === new Date().toDateString()){
       pomodoroCount = s.pomodoroCount;
     }
     refreshTomato();
-    // 還原專注時長（自訂值會切到「自訂」分頁）
+    
+    // 恢復時長
     if(s.focusMin && s.focusMin !== 25){
       focusMin = s.focusMin;
       customInput.value = focusMin;
@@ -739,7 +1561,40 @@ function loadSettings(){
       customTab.classList.add('active');
       applyMinutes(focusMin, '專注時間', true);
     }
+
+    // 恢復音效開關
+    if(s.soundOn === false){
+      soundOn = false;
+      soundToggleCheck.checked = false;
+    }
+    if(s.bubbleSoundOn === false){
+      bubbleSoundCheck.checked = false;
+    }
+
+    // 恢復視覺主題 (包含 default，以正確初始化 CSS 變數)
+    if(s.currentTheme){
+      document.querySelectorAll('.theme-opt').forEach(o => {
+        if(o.dataset.theme === s.currentTheme) {
+          o.classList.add('active');
+        } else {
+          o.classList.remove('active');
+        }
+      });
+      setTheme(s.currentTheme);
+    }
+
+    // 恢復背景噪音類型
+    if(s.ambientType && s.ambientType !== 'off'){
+      document.querySelectorAll('.ambient-opt-item').forEach(o => {
+        if(o.dataset.noise === s.ambientType) {
+          o.classList.add('active');
+        } else {
+          o.classList.remove('active');
+        }
+      });
+    }
   } catch(e){}
+  isLoadingSettings = false;
 }
 loadSettings();
 </script>
