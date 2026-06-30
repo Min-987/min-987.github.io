@@ -152,6 +152,7 @@
     border: 1px solid rgba(255, 255, 255, 0.08); z-index: 100;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     padding: 24px; color: #fff; box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; overflow: hidden;
   }
   .left-drawer { left: 0; transform: translateX(-100%); border-right: 1px solid rgba(255,255,255,0.08); }
   .right-drawer { right: 0; transform: translateX(100%); border-left: 1px solid rgba(255,255,255,0.08); }
@@ -168,7 +169,7 @@
   .drawer-close { font-size: 26px; cursor: pointer; color: rgba(255,255,255,0.5); transition: color 0.2s; }
   .drawer-close:hover { color: #fff; }
 
-  .drawer-content { overflow-y: auto; height: calc(100% - 40px); padding-right: 4px; }
+  .drawer-content { flex: 1; overflow-y: auto; padding-right: 4px; }
   .drawer-content::-webkit-scrollbar { width: 4px; }
   .drawer-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
 
@@ -265,6 +266,21 @@
     background: rgba(255, 255, 255, 0.02);
     border-color: rgba(255, 255, 255, 0.04);
   }
+  .todo-list-wrapper {
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .todo-list-wrapper::-webkit-scrollbar {
+    width: 5px;
+  }
+  .todo-list-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .todo-list-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
   
   /* 氣泡溶解漂浮動畫 */
   .todo-item.dissolving {
@@ -291,8 +307,18 @@
   .todo-checkbox.checked:after {
     content: "✓"; color: #1a1a2e; font-size: 11px; font-weight: bold;
   }
-  .todo-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.85); transition: color 0.2s; word-break: break-all; }
+  .todo-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.85); transition: color 0.2s; word-break: break-all; outline: none; border-bottom: 1px dashed transparent; }
   .todo-text.checked { text-decoration: line-through; color: rgba(255,255,255,0.35); }
+  .todo-text[contenteditable="true"]:focus {
+    border-bottom: 1px dashed var(--accent, #5B4FFF) !important;
+    color: #fff;
+  }
+  @media (hover: hover) {
+    .todo-text:not(.checked):hover {
+      border-bottom: 1px dashed rgba(255,255,255,0.3);
+      cursor: text;
+    }
+  }
 
   .todo-delete {
     color: rgba(255,255,255,0.3); cursor: pointer; transition: color 0.2s; font-size: 15px; padding: 2px;
@@ -487,12 +513,12 @@
     <h2>待辦清單 Tasks</h2>
     <span class="drawer-close" id="todoClose">&times;</span>
   </div>
-  <div class="drawer-content" style="display:flex; flex-direction:column; height:calc(100% - 40px);">
+  <div class="drawer-content" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
     <div class="todo-input-row">
       <input type="text" id="todoInput" placeholder="新增專注任務..." maxlength="50" />
       <button id="todoAddBtn"></button>
     </div>
-    <div class="todo-list-wrapper" style="flex:1; overflow-y:auto; margin-top:16px; position:relative; min-height: 200px;">
+    <div class="todo-list-wrapper" style="flex:1; overflow-x:hidden; overflow-y:auto; margin-top:16px; position:relative; min-height: 200px;">
       <ul id="todoListActive" class="todo-list">
         <!-- JS 未完成事項 -->
       </ul>
@@ -1127,7 +1153,7 @@ function renderTodos() {
     li.dataset.id = todo.id;
     li.innerHTML = `
       <div class="todo-checkbox"></div>
-      <span class="todo-text">${todo.text}</span>
+      <span class="todo-text" title="雙擊以修改任務名稱">${todo.text}</span>
       <span class="todo-delete">&times;</span>
     `;
     
@@ -1138,6 +1164,9 @@ function renderTodos() {
       e.stopPropagation();
       deleteTodo(todo.id, li);
     });
+    
+    setupTodoEdit(li, todo);
+    
     todoListActive.appendChild(li);
   });
   
@@ -1170,6 +1199,48 @@ function renderTodos() {
       deleteTodo(todo.id, li);
     });
     todoListCompleted.appendChild(li);
+  });
+}
+
+function setupTodoEdit(li, todo) {
+  const textEl = li.querySelector('.todo-text');
+  if (!textEl) return;
+  
+  // 雙擊開啟編輯
+  textEl.addEventListener('dblclick', () => {
+    if (todo.checked) return;
+    textEl.contentEditable = 'true';
+    textEl.focus();
+    
+    const range = document.createRange();
+    range.selectNodeContents(textEl);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  
+  // 失去焦點儲存
+  textEl.addEventListener('blur', () => {
+    textEl.contentEditable = 'false';
+    const newText = textEl.textContent.trim();
+    let todos = getTodos();
+    const idx = todos.findIndex(t => t.id === todo.id);
+    if(idx === -1) return;
+    
+    if(!newText) {
+      textEl.textContent = todos[idx].text;
+    } else if(newText !== todos[idx].text) {
+      todos[idx].text = newText;
+      saveTodos(todos);
+    }
+  });
+  
+  // 按 Enter 鍵儲存
+  textEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') {
+      e.preventDefault();
+      textEl.blur();
+    }
   });
 }
 
