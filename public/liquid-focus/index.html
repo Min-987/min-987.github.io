@@ -67,6 +67,14 @@
   }
 
   .controls { display:flex; gap:16px; margin-top:8px; }
+
+  .loop-row {
+    display:flex; align-items:center; gap:16px; margin-top:14px;
+    font-size:12px; color:rgba(255,255,255,0.6); letter-spacing:1px;
+  }
+  .loop-toggle { display:flex; align-items:center; gap:7px; cursor:pointer; }
+  .loop-toggle input { width:15px; height:15px; accent-color:#fff; cursor:pointer; }
+  .tomato-count { letter-spacing:1px; }
   button {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.2);
@@ -240,6 +248,13 @@
   <div class="controls">
     <button id="resetBtn">重置</button>
     <button id="startBtn" class="primary">開始專注</button>
+  </div>
+  <div class="loop-row">
+    <label class="loop-toggle">
+      <input type="checkbox" id="autoLoop" />
+      <span>自動循環</span>
+    </label>
+    <span class="tomato-count" id="tomatoCount">🍅 × 0</span>
   </div>
 </div>
 
@@ -544,6 +559,7 @@ function startTimer(){
   timerId = setInterval(()=>{
     remaining--;
     timeDisplay.textContent = formatTime(remaining);
+    updateTitle();
     if(remaining<=0){
       clearInterval(timerId);
       running = false;
@@ -556,11 +572,13 @@ function pauseTimer(){
   running = false;
   clearInterval(timerId);
   startBtn.textContent = '繼續';
+  updateTitle();
 }
 
 startBtn.addEventListener('click', ()=>{
+  requestNotify();
   if(running) { pauseTimer(); playPauseSound(); }
-  else { startBtn.textContent='暫停'; startTimer(); playStartSound(); }
+  else { startBtn.textContent='暫停'; startTimer(); playStartSound(); updateTitle(); }
 });
 
 resetBtn.addEventListener('click', ()=>{
@@ -569,20 +587,38 @@ resetBtn.addEventListener('click', ()=>{
   remaining = totalSeconds;
   timeDisplay.textContent = formatTime(remaining);
   startBtn.textContent = '開始專注';
+  updateTitle();
 });
 
 const customTime = document.getElementById('customTime');
 const customInput = document.getElementById('customInput');
 const customApply = document.getElementById('customApply');
+const customTab = document.getElementById('customTab');
+const autoLoopChk = document.getElementById('autoLoop');
+const tomatoCountEl = document.getElementById('tomatoCount');
 
-function applyMinutes(min, label){
+let isFocusPhase = true;   // 目前階段：專注 or 休息
+let focusMin = 25;         // 記住的專注時長（自訂會更新）
+let pomodoroCount = 0;     // 今日完成的番茄數
+const PAGE_TITLE = 'Liquid Focus — 液態番茄鐘';
+
+function updateTitle(){
+  document.title = running
+    ? formatTime(remaining) + (isFocusPhase ? ' · 專注中' : ' · 休息中')
+    : PAGE_TITLE;
+}
+
+function applyMinutes(min, label, focus){
   totalSeconds = min*60;
   remaining = totalSeconds;
+  isFocusPhase = focus;
   timeDisplay.textContent = formatTime(remaining);
   phaseLabel.textContent = label;
   clearInterval(timerId);
   running = false;
   startBtn.textContent = '開始專注';
+  updateTitle();
+  saveSettings();
 }
 
 tabs.forEach(tab=>{
@@ -597,7 +633,9 @@ tabs.forEach(tab=>{
     }
     customTime.classList.remove('show');
     const min = parseInt(tab.dataset.min);
-    applyMinutes(min, min===25 ? '專注時間' : '休息時間');
+    const focus = (min === 25);
+    if(focus) focusMin = min;
+    applyMinutes(min, focus ? '專注時間' : '休息時間', focus);
   });
 });
 
@@ -606,14 +644,37 @@ function commitCustom(){
   if(isNaN(min) || min < 1) min = 1;
   if(min > 180) min = 180;
   customInput.value = min;
-  applyMinutes(min, '專注時間');
+  focusMin = min;
+  applyMinutes(min, '專注時間', true);
   customTime.classList.remove('show');
 }
 customApply.addEventListener('click', commitCustom);
 customInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') commitCustom(); });
 
+autoLoopChk.addEventListener('change', saveSettings);
+
+function refreshTomato(){ tomatoCountEl.textContent = '🍅 × ' + pomodoroCount; }
+
+// ===== 通知 =====
+function requestNotify(){
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
+}
+function notify(body){
+  if('Notification' in window && Notification.permission === 'granted'){
+    try { new Notification('Liquid Focus', { body, silent:true }); } catch(e){}
+  }
+}
+function flashTitle(msg){
+  let on = true, n = 0;
+  const id = setInterval(()=>{
+    document.title = on ? msg : PAGE_TITLE; on = !on; n++;
+    if(n > 10){ clearInterval(id); updateTitle(); }
+  }, 600);
+}
+
 function celebrate(){
-  phaseLabel.textContent = '完成！';
   startBtn.textContent = '開始專注';
   playCompleteSound();
   let count = 0;
@@ -622,7 +683,65 @@ function celebrate(){
     count++;
     if(count>25) clearInterval(burst);
   }, 60);
+
+  const finishedFocus = isFocusPhase;
+  if(finishedFocus){ pomodoroCount++; refreshTomato(); }
+  phaseLabel.textContent = finishedFocus ? '完成！' : '休息結束';
+  notify(finishedFocus ? '專注完成，休息一下 🍵' : '休息結束，繼續加油 💪');
+  flashTitle('⏰ 時間到！');
+  saveSettings();
+
+  if(autoLoopChk.checked){
+    let nextMin, nextLabel, nextFocus;
+    if(finishedFocus){
+      nextFocus = false;
+      const isLong = pomodoroCount % 4 === 0;   // 每 4 顆番茄給長休
+      nextMin = isLong ? 15 : 5;
+      nextLabel = isLong ? '長休息' : '短休息';
+    } else {
+      nextFocus = true; nextMin = focusMin; nextLabel = '專注時間';
+    }
+    applyMinutes(nextMin, nextLabel, nextFocus);
+    setTimeout(()=>{ startBtn.textContent = '暫停'; startTimer(); updateTitle(); }, 1500);
+  }
 }
+
+// ===== 設定保存（localStorage）=====
+function saveSettings(){
+  try {
+    localStorage.setItem('lf_settings', JSON.stringify({
+      focusMin,
+      autoLoop: autoLoopChk.checked,
+      ambientVolume,
+      pomodoroCount,
+      countDate: new Date().toDateString(),
+    }));
+  } catch(e){}
+}
+function loadSettings(){
+  try {
+    const s = JSON.parse(localStorage.getItem('lf_settings') || '{}');
+    if(typeof s.ambientVolume === 'number'){
+      ambientVolume = s.ambientVolume;
+      ambientVol.value = Math.round(ambientVolume*100);
+    }
+    if(s.autoLoop) autoLoopChk.checked = true;
+    // 番茄數：僅同一天才沿用
+    if(s.pomodoroCount && s.countDate === new Date().toDateString()){
+      pomodoroCount = s.pomodoroCount;
+    }
+    refreshTomato();
+    // 還原專注時長（自訂值會切到「自訂」分頁）
+    if(s.focusMin && s.focusMin !== 25){
+      focusMin = s.focusMin;
+      customInput.value = focusMin;
+      tabs.forEach(t=>t.classList.remove('active'));
+      customTab.classList.add('active');
+      applyMinutes(focusMin, '專注時間', true);
+    }
+  } catch(e){}
+}
+loadSettings();
 </script>
 </body>
 </html>
