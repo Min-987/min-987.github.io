@@ -86,6 +86,20 @@
     font-size:11px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; z-index:10;
   }
 
+  .ambient-bar {
+    position:fixed; bottom:58px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:7px; z-index:10;
+  }
+  .ambient-bar .ambient-label {
+    font-size:10px; color:rgba(255,255,255,0.35); letter-spacing:2px; margin-right:4px;
+  }
+  .ambient-opt {
+    font-size:11px; padding:6px 13px; border-radius:999px; cursor:pointer;
+    color:rgba(255,255,255,0.5); letter-spacing:1px; transition:all 0.25s;
+    border:1px solid rgba(255,255,255,0.12); backdrop-filter:blur(8px);
+  }
+  .ambient-opt.active { background:rgba(255,255,255,0.14); color:#fff; border-color:rgba(255,255,255,0.3); }
+
   .percent-tag {
     position:fixed; top:32px; right:32px; z-index:10;
     font-size:13px; color:rgba(255,255,255,0.55); letter-spacing:1px;
@@ -190,6 +204,14 @@
     <button id="resetBtn">重置</button>
     <button id="startBtn" class="primary">開始專注</button>
   </div>
+</div>
+
+<div class="ambient-bar" id="ambientBar">
+  <span class="ambient-label">背景音</span>
+  <span class="ambient-opt active" data-noise="off">關閉</span>
+  <span class="ambient-opt" data-noise="white">白噪音</span>
+  <span class="ambient-opt" data-noise="pink">粉紅噪音</span>
+  <span class="ambient-opt" data-noise="brown">棕噪音</span>
 </div>
 
 <div class="hint">整個畫面就是進度 · 液體滿溢即完成</div>
@@ -298,6 +320,71 @@ function playCompleteSound(){
   playTone(587.33, 2.6, 0.07, 'sine', 0.24, 0.8);  // D5
 }
 
+// ===== 背景白噪音（可即時切換試聽）=====
+let ambientSource = null, ambientGain = null, ambientType = 'off';
+
+// 生成 4 秒可循環的噪音緩衝；type: white / pink / brown
+function makeNoiseBuffer(type){
+  const len = audioCtx.sampleRate * 4;
+  const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  if(type === 'white'){
+    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+  } else if(type === 'pink'){
+    // Paul Kellet 粉紅噪音近似
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<len;i++){
+      const w = Math.random()*2-1;
+      b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
+      b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
+      b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
+      d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11; b6=w*0.115926;
+    }
+  } else { // brown：積分白噪音，低頻偏多、最柔
+    let last=0;
+    for(let i=0;i<len;i++){
+      const w = Math.random()*2-1;
+      last = (last + 0.02*w)/1.02; d[i] = last*3.5;
+    }
+  }
+  return buf;
+}
+
+function setAmbient(type){
+  ambientType = type;
+  ensureAudio();
+  // 先淡出停掉舊的
+  if(ambientSource){
+    try {
+      ambientGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      ambientGain.gain.setValueAtTime(ambientGain.gain.value, audioCtx.currentTime);
+      ambientGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.3);
+      const old = ambientSource; setTimeout(()=>{ try{old.stop()}catch(e){} }, 350);
+    } catch(e){}
+    ambientSource = null;
+  }
+  if(type === 'off') return;
+  const src = audioCtx.createBufferSource();
+  src.buffer = makeNoiseBuffer(type);
+  src.loop = true;
+  ambientGain = audioCtx.createGain();
+  ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  // 各噪音感受到的響度不同，稍微平衡一下音量
+  const target = type==='white' ? 0.05 : type==='pink' ? 0.10 : 0.18;
+  ambientGain.gain.linearRampToValueAtTime(target, audioCtx.currentTime+0.4);
+  src.connect(ambientGain).connect(masterGain);
+  src.start();
+  ambientSource = src;
+}
+
+document.querySelectorAll('.ambient-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('.ambient-opt').forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
+    setAmbient(opt.dataset.noise);
+  });
+});
+
 const soundToggle = document.getElementById('soundToggle');
 const soundIcon = document.getElementById('soundIcon');
 soundToggle.addEventListener('click', ()=>{
@@ -388,7 +475,6 @@ function spawnBubble(){
   b.style.animationDuration = (4+Math.random()*3)+'s';
   bubbleLayer.appendChild(b);
   setTimeout(()=> b.remove(), 8000);
-  playBubbleSound();
 }
 setInterval(spawnBubble, 350);
 
