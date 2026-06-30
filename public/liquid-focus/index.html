@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid Focus — 液態番茄鐘</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:100%; height:100vh; height:100dvh; overflow:hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a14;
+    color:#fff;
+  }
+  body { position:relative; }
+
+  /* 滿版液態背景 */
+  .liquid-stage {
+    position:fixed; inset:0; width:100%; height:100%;
+  }
+  svg.liquid { position:absolute; bottom:0; left:0; width:100%; height:100%; }
+
+  /* 玻璃感光暈，模擬容器邊緣反光 */
+  .vignette {
+    position:fixed; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.08), transparent 50%),
+                radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.35) 100%);
+    z-index:5;
+  }
+
+  .bubble {
+    position:absolute; bottom:0; border-radius:50%;
+    background: rgba(255,255,255,0.4);
+    animation: rise linear infinite;
+    z-index:3;
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity:0.7; }
+    100% { transform: translateY(-100dvh) translateX(var(--drift,0px)) scale(0.4); opacity:0; }
+  }
+
+  /* 中央內容層 */
+  .hud {
+    position:fixed; inset:0; z-index:10;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px; pointer-events:none;
+  }
+  .hud > * { pointer-events:auto; }
+
+  .mode-tabs { display:flex; gap:8px; position:fixed; top:32px; left:50%; transform:translateX(-50%); }
+  .mode-tabs span {
+    font-size:11px; padding:7px 16px; border-radius:999px; cursor:pointer;
+    color:rgba(255,255,255,0.55); letter-spacing:1.5px; transition: all 0.25s;
+    border:1px solid rgba(255,255,255,0.12); backdrop-filter: blur(8px);
+  }
+  .mode-tabs span.active { background:rgba(255,255,255,0.14); color:#fff; border-color:rgba(255,255,255,0.3); }
+
+  .phase-label {
+    font-size:13px; letter-spacing:5px; text-transform:uppercase;
+    color:rgba(255,255,255,0.65); text-shadow:0 2px 12px rgba(0,0,0,0.5);
+  }
+  .time-display {
+    font-size:clamp(56px, 14vw, 120px); font-weight:200; letter-spacing:4px;
+    text-shadow: 0 4px 40px rgba(0,0,0,0.5);
+    font-variant-numeric: tabular-nums;
+    line-height:1;
+  }
+
+  .controls { display:flex; gap:16px; margin-top:8px; }
+  button {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color:#fff; padding:14px 32px; border-radius:999px;
+    font-size:14px; cursor:pointer; backdrop-filter: blur(14px);
+    transition: all 0.25s ease; letter-spacing:1.5px;
+  }
+  button:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+  button.primary {
+    background: rgba(255,255,255,0.95); color:#1a1a2e; border:none;
+    box-shadow:0 8px 30px rgba(255,255,255,0.25); font-weight:500;
+  }
+  button.primary:hover { box-shadow:0 10px 36px rgba(255,255,255,0.35); }
+
+  .hint {
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+    font-size:11px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; z-index:10;
+  }
+
+  .percent-tag {
+    position:fixed; top:32px; right:32px; z-index:10;
+    font-size:13px; color:rgba(255,255,255,0.55); letter-spacing:1px;
+    border:1px solid rgba(255,255,255,0.12); padding:7px 14px; border-radius:999px;
+    backdrop-filter: blur(8px);
+  }
+
+  .sound-toggle {
+    position:fixed; top:32px; left:32px; z-index:10;
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px); cursor:pointer; transition: all 0.25s;
+  }
+  .sound-toggle:hover { background:rgba(255,255,255,0.14); }
+  .sound-toggle svg { width:16px; height:16px; }
+
+  /* ===== 手機版響應式 ===== */
+  @media (max-width: 600px) {
+    .mode-tabs {
+      top: max(20px, env(safe-area-inset-top));
+      gap:6px;
+    }
+    .mode-tabs span {
+      font-size:10px; padding:6px 12px; letter-spacing:1px;
+    }
+    .percent-tag {
+      top: max(20px, env(safe-area-inset-top));
+      right:16px; font-size:11px; padding:6px 11px;
+    }
+    .sound-toggle {
+      top: max(20px, env(safe-area-inset-top));
+      left:16px; width:30px; height:30px;
+    }
+    .hud { gap:12px; }
+    .phase-label { font-size:11px; letter-spacing:3px; }
+    .time-display { font-size:clamp(44px, 16vw, 72px); letter-spacing:2px; }
+    .controls { gap:12px; flex-direction:column; width:78%; max-width:280px; }
+    button {
+      padding:15px 0; font-size:14px; width:100%; text-align:center;
+    }
+    .hint {
+      bottom: max(20px, env(safe-area-inset-bottom));
+      font-size:10px; padding:0 24px; text-align:center;
+    }
+  }
+
+  /* 矮螢幕（如手機橫向）避免內容被壓扁 */
+  @media (max-height: 480px) {
+    .hud { gap:8px; }
+    .time-display { font-size:clamp(36px, 10vh, 64px); }
+    .controls { flex-direction:row; }
+    button { padding:10px 24px; }
+    .hint { display:none; }
+  }
+
+  /* 寬螢幕（桌面大螢幕）讓內容不要過度放大、維持精緻感 */
+  @media (min-width: 1400px) {
+    .time-display { font-size:96px; }
+    .controls { gap:20px; }
+    button { padding:16px 36px; font-size:15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="liquid-stage">
+  <svg class="liquid" id="liquidSvg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="liquidGradient" x1="0" y1="0" x2="0" y2="1">
+        <stop id="stop1" offset="0%" stop-color="#5B4FFF"/>
+        <stop id="stop2" offset="50%" stop-color="#B14FFF"/>
+        <stop id="stop3" offset="100%" stop-color="#FF4FB8"/>
+      </linearGradient>
+    </defs>
+    <path id="wavePath" fill="url(#liquidGradient)" d=""></path>
+  </svg>
+  <div id="bubbleLayer"></div>
+</div>
+<div class="vignette"></div>
+
+<div class="percent-tag" id="percentTag">0%</div>
+
+<div class="sound-toggle" id="soundToggle" title="開啟/關閉音效">
+  <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+  </svg>
+</div>
+
+<div class="mode-tabs">
+  <span class="active" data-min="25">專注 25</span>
+  <span data-min="5">短休 5</span>
+  <span data-min="15">長休 15</span>
+</div>
+
+<div class="hud">
+  <div class="phase-label" id="phaseLabel">專注時間</div>
+  <div class="time-display" id="timeDisplay">25:00</div>
+  <div class="controls">
+    <button id="resetBtn">重置</button>
+    <button id="startBtn" class="primary">開始專注</button>
+  </div>
+</div>
+
+<div class="hint">整個畫面就是進度 · 液體滿溢即完成</div>
+
+<script>
+let totalSeconds = 25*60;
+let remaining = totalSeconds;
+let timerId = null;
+let running = false;
+let waveOffset = 0;
+let slowDrift = 0;
+let soundOn = true;
+
+// ===== 音效系統：Web Audio API 即時合成，含柔和殘響 =====
+let audioCtx = null, masterGain = null, reverbSend = null;
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // 主輸出：總音量 + 柔和低通，讓整體更溫潤不刺耳
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.9;
+    const masterLP = audioCtx.createBiquadFilter();
+    masterLP.type = 'lowpass';
+    masterLP.frequency.value = 6500;
+    masterGain.connect(masterLP).connect(audioCtx.destination);
+
+    // 殘響：用衰減噪音合成脈衝響應，給聲音空間感
+    const conv = audioCtx.createConvolver();
+    const len = Math.floor(audioCtx.sampleRate * 1.8);
+    const ir = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
+    for(let ch=0; ch<2; ch++){
+      const d = ir.getChannelData(ch);
+      for(let i=0;i<len;i++){
+        d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.8);
+      }
+    }
+    conv.buffer = ir;
+    reverbSend = audioCtx.createGain();
+    reverbSend.gain.value = 0.5;
+    reverbSend.connect(conv).connect(masterGain);
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+// 柔和音調，帶淡入淡出包絡；wet 控制送進殘響的量
+function playTone(freq, duration, startGain, type='sine', delay=0, wet=0.35){
+  if(!soundOn) return;
+  ensureAudio();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  const t0 = audioCtx.currentTime + delay;
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.linearRampToValueAtTime(startGain, t0 + 0.06);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.connect(gain);
+  gain.connect(masterGain);                 // 乾聲
+  const send = audioCtx.createGain();
+  send.gain.value = wet;
+  gain.connect(send).connect(reverbSend);   // 濕聲（殘響）
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.05);
+}
+
+// 開始：柔和上行雙音
+function playStartSound(){
+  playTone(330, 0.5, 0.09, 'sine');
+  playTone(440, 0.55, 0.06, 'sine', 0.09);
+}
+
+// 暫停：單一下行柔音
+function playPauseSound(){
+  playTone(294, 0.4, 0.07, 'sine');
+}
+
+// 氣泡音：音高快速下滑的 sine，做出水滴「啵」聲（不再用噪音，避免沙沙刺耳）
+function playBubbleSound(){
+  if(!soundOn || Math.random() > 0.28) return;
+  ensureAudio();
+  const t0 = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  const f0 = 900 + Math.random()*700;       // 起始音高
+  osc.frequency.setValueAtTime(f0, t0);
+  osc.frequency.exponentialRampToValueAtTime(f0*0.45, t0+0.12); // 快速下滑＝水滴感
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.06, t0+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.18);
+  osc.connect(gain);
+  gain.connect(masterGain);
+  const send = audioCtx.createGain();
+  send.gain.value = 0.6;
+  gain.connect(send).connect(reverbSend);
+  osc.start(t0);
+  osc.stop(t0+0.22);
+}
+
+// 完成：溫暖的大三和絃，殘響加重，像缽聲擴散
+function playCompleteSound(){
+  ensureAudio();
+  playTone(392.00, 2.4, 0.12, 'sine', 0.00, 0.8);  // G4
+  playTone(493.88, 2.4, 0.09, 'sine', 0.12, 0.8);  // B4
+  playTone(587.33, 2.6, 0.07, 'sine', 0.24, 0.8);  // D5
+}
+
+const soundToggle = document.getElementById('soundToggle');
+const soundIcon = document.getElementById('soundIcon');
+soundToggle.addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  if(soundOn){
+    soundIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`;
+    ensureAudio();
+  } else {
+    soundIcon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
+  }
+});
+
+const timeDisplay = document.getElementById('timeDisplay');
+const phaseLabel = document.getElementById('phaseLabel');
+const percentTag = document.getElementById('percentTag');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const wavePath = document.getElementById('wavePath');
+const bubbleLayer = document.getElementById('bubbleLayer');
+const tabs = document.querySelectorAll('.mode-tabs span');
+const stop1 = document.getElementById('stop1');
+const stop2 = document.getElementById('stop2');
+const stop3 = document.getElementById('stop3');
+
+function formatTime(s){
+  const m = Math.floor(s/60).toString().padStart(2,'0');
+  const sec = (s%60).toString().padStart(2,'0');
+  return `${m}:${sec}`;
+}
+
+// 顏色組：冷色(開始) -> 暖色(完成)
+function lerpColor(a, b, t){
+  const ah = parseInt(a.slice(1),16), bh = parseInt(b.slice(1),16);
+  const ar = (ah>>16)&255, ag=(ah>>8)&255, ab=ah&255;
+  const br = (bh>>16)&255, bg=(bh>>8)&255, bb=bh&255;
+  const rr = Math.round(ar+(br-ar)*t), rg=Math.round(ag+(bg-ag)*t), rb=Math.round(ab+(bb-ab)*t);
+  return '#'+[rr,rg,rb].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+function drawWave(){
+  const progress = 1 - (remaining/totalSeconds);
+  const liquidHeightPct = Math.max(progress, 0.015);
+  const baseY = 1000 * (1 - liquidHeightPct);
+  const baseAmp = running ? 9 : 2.5;
+
+  // 只疊加 2 層低頻波（去除高頻尖角），並用平滑曲線連接取代折線
+  // 模擬液體表面張力造成的圓滑過渡
+  const points = [];
+  for(let x=0; x<=1000; x+=20){
+    const y = baseY
+      + Math.sin((x/420)*2*Math.PI + waveOffset) * baseAmp
+      + Math.sin((x/180)*2*Math.PI - waveOffset*1.4 + slowDrift) * baseAmp*0.35;
+    points.push([x, y]);
+  }
+
+  let d = `M0,${points[0][1].toFixed(1)}`;
+  // 用 Catmull-Rom 轉貝茲的方式畫平滑曲線
+  for(let i=0; i<points.length-1; i++){
+    const p0 = points[Math.max(i-1,0)];
+    const p1 = points[i];
+    const p2 = points[i+1];
+    const p3 = points[Math.min(i+2, points.length-1)];
+    const cp1x = p1[0] + (p2[0]-p0[0])/6;
+    const cp1y = p1[1] + (p2[1]-p0[1])/6;
+    const cp2x = p2[0] - (p3[0]-p1[0])/6;
+    const cp2y = p2[1] - (p3[1]-p1[1])/6;
+    d += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0]},${p2[1].toFixed(1)}`;
+  }
+  d += ` L1000,1000 L0,1000 Z`;
+  wavePath.setAttribute('d', d);
+
+  stop1.setAttribute('stop-color', lerpColor('#5B4FFF', '#FF6B4F', progress));
+  stop2.setAttribute('stop-color', lerpColor('#B14FFF', '#FFB14F', progress));
+  stop3.setAttribute('stop-color', lerpColor('#FF4FB8', '#FFE14F', progress));
+
+  percentTag.textContent = Math.round(progress*100)+'%';
+}
+
+function spawnBubble(){
+  if(!running) return;
+  const b = document.createElement('div');
+  const size = 5 + Math.random()*14;
+  b.className = 'bubble';
+  b.style.width = size+'px';
+  b.style.height = size+'px';
+  b.style.left = (Math.random()*window.innerWidth)+'px';
+  b.style.setProperty('--drift', (Math.random()*60-30)+'px');
+  b.style.animationDuration = (4+Math.random()*3)+'s';
+  bubbleLayer.appendChild(b);
+  setTimeout(()=> b.remove(), 8000);
+  playBubbleSound();
+}
+setInterval(spawnBubble, 350);
+
+function tick(){
+  waveOffset += running ? 0.045 : 0.012;
+  slowDrift += 0.006;
+  drawWave();
+  requestAnimationFrame(tick);
+}
+tick();
+
+function startTimer(){
+  if(running) return;
+  running = true;
+  startBtn.textContent = '暫停';
+  timerId = setInterval(()=>{
+    remaining--;
+    timeDisplay.textContent = formatTime(remaining);
+    if(remaining<=0){
+      clearInterval(timerId);
+      running = false;
+      celebrate();
+    }
+  }, 1000);
+}
+
+function pauseTimer(){
+  running = false;
+  clearInterval(timerId);
+  startBtn.textContent = '繼續';
+}
+
+startBtn.addEventListener('click', ()=>{
+  if(running) { pauseTimer(); playPauseSound(); }
+  else { startBtn.textContent='暫停'; startTimer(); playStartSound(); }
+});
+
+resetBtn.addEventListener('click', ()=>{
+  clearInterval(timerId);
+  running = false;
+  remaining = totalSeconds;
+  timeDisplay.textContent = formatTime(remaining);
+  startBtn.textContent = '開始專注';
+});
+
+tabs.forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    tabs.forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const min = parseInt(tab.dataset.min);
+    totalSeconds = min*60;
+    remaining = totalSeconds;
+    timeDisplay.textContent = formatTime(remaining);
+    phaseLabel.textContent = min===25 ? '專注時間' : '休息時間';
+    clearInterval(timerId);
+    running = false;
+    startBtn.textContent = '開始專注';
+  });
+});
+
+function celebrate(){
+  phaseLabel.textContent = '完成！';
+  startBtn.textContent = '開始專注';
+  playCompleteSound();
+  let count = 0;
+  const burst = setInterval(()=>{
+    spawnBubble(); spawnBubble(); spawnBubble();
+    count++;
+    if(count>25) clearInterval(burst);
+  }, 60);
+}
+</script>
+</body>
+</html>

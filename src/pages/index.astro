@@ -28,6 +28,16 @@ const projects = [
     tags: ['Python', '桌面工具', '開源'],
     g1: '#a06bff', g2: '#e36bd0',
   },
+  {
+    href: `${base}/liquid-focus/`,
+    external: true,
+    emoji: '🍅',
+    title: 'Liquid Focus',
+    sub: '液態番茄鐘',
+    desc: '滿版液態動畫的番茄鐘，時間流逝化為上升的液面與氣泡，配上即時合成的柔和音效。打開即用，專注更有儀式感。',
+    tags: ['Web', 'Canvas / SVG', 'Web Audio'],
+    g1: '#5B4FFF', g2: '#FF4FB8',
+  },
 ];
 ---
 <Base title="Min — 個人網站" description="Min 的個人網站與作品集。打造實用的行動應用。">
@@ -90,7 +100,7 @@ const projects = [
       <h2><span class="num">03</span> 作品</h2>
       <div class="project-list">
         {projects.map((p) => (
-          <a class="project" href={p.href} style={`--g1:${p.g1}; --g2:${p.g2};`}>
+          <a class="project" href={p.href} target={p.external ? '_blank' : undefined} rel={p.external ? 'noopener' : undefined} style={`--g1:${p.g1}; --g2:${p.g2};`}>
             <div class="banner"><span>{p.emoji}</span></div>
             <div class="pbody">
               <div class="ptitle">
