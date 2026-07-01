@@ -165,9 +165,15 @@ const projects = [
       display: block; text-decoration: none; color: var(--text);
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 18px; overflow: hidden;
-      transition: transform .18s, border-color .2s;
+      transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  border-color 0.25s,
+                  box-shadow 0.25s;
     }
-    .project:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .project:hover {
+      transform: translateY(-5px);
+      border-color: var(--g2);
+      box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--g2) 30%, transparent);
+    }
     .project .banner {
       height: 96px; display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, var(--g1), var(--g2));
