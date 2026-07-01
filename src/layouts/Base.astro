@@ -49,8 +49,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         --accent-2: #8b5cf6;
         --border: #e2e8f0;
       }
-      html.light .bg-glow::before { opacity: .18; }
-      html.light .bg-glow::after { opacity: .12; }
+      html.light .bg-glow::before { opacity: .38; }
+      html.light .bg-glow::after { opacity: .28; }
       html.light header.site nav a.active {
         text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
       }
@@ -75,15 +75,35 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       .bg-glow::before, .bg-glow::after {
         content: ''; position: absolute; border-radius: 50%;
         filter: blur(90px); opacity: .35;
+        will-change: transform;
       }
       .bg-glow::before {
         width: 480px; height: 480px; top: -160px; left: -120px;
         background: radial-gradient(circle, var(--accent), transparent 70%);
+        animation: float-glow-1 25s infinite ease-in-out;
       }
       .bg-glow::after {
         width: 420px; height: 420px; top: 80px; right: -140px;
         background: radial-gradient(circle, var(--accent-2), transparent 70%);
         opacity: .25;
+        animation: float-glow-2 20s infinite ease-in-out;
+      }
+
+      @keyframes float-glow-1 {
+        0% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(40px, 30px) scale(1.08); }
+        66% { transform: translate(-20px, 45px) scale(0.95); }
+        100% { transform: translate(0, 0) scale(1); }
+      }
+      @keyframes float-glow-2 {
+        0% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(-35px, -40px) scale(1.06); }
+        100% { transform: translate(0, 0) scale(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .bg-glow::before, .bg-glow::after {
+          animation: none !important;
+        }
       }
 
       /* 滑入淡入動畫 */
@@ -247,6 +267,42 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       }
       footer.site .links a { color: var(--muted); text-decoration: none; margin-right: 18px; transition: color .2s; }
       footer.site .links a:hover { color: var(--text); }
+
+      /* Toast 提示氣泡 */
+      .toast-container {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+      }
+      .toast {
+        background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: toast-in-out 3s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+        pointer-events: auto;
+      }
+      @keyframes toast-in-out {
+        0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+        8% { opacity: 1; transform: translateY(0) scale(1); }
+        92% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-15px) scale(0.97); }
+      }
     </style>
   </head>
   <body>
@@ -289,6 +345,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         © {new Date().getFullYear()} Min
       </div>
     </footer>
+    <div id="toastContainer" class="toast-container"></div>
     <script>
       // 區塊滑入時淡入（無 JS 時內容照常顯示）
       const mq = window.matchMedia('(prefers-reduced-motion: no-preference)');
@@ -335,6 +392,26 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           localStorage.setItem('theme', isLight ? 'light' : 'dark');
         });
       }
+
+      // 全域 Toast 氣泡通知發送器
+      // @ts-ignore
+      window.showToast = function (message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+          <svg style="width:16px; height:16px; color:var(--accent); flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span style="white-space:nowrap;">${message}</span>
+        `;
+        container.appendChild(toast);
+        // 動畫結束後自動移除元素
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      };
     </script>
   </body>
 </html>

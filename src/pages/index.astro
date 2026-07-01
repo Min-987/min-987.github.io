@@ -109,6 +109,7 @@ const projects = [
               <p class="muted pdesc">{p.desc}</p>
               <div class="tags">
                 {p.tags.map((t) => <span class="tag">{t}</span>)}
+                <span class="tag tag-update" id={`update-${p.href.split('/').pop()}`}></span>
               </div>
             </div>
           </a>
@@ -123,7 +124,13 @@ const projects = [
       <h2><span class="num">04</span> 聯絡</h2>
       <p>有專案合作、工作機會或單純想聊聊，都歡迎來信 👇</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="mailto:n200127@gmail.com">寄 Email 給我</a>
+        <button id="copyEmailBtn" class="btn btn-primary" style="cursor: pointer; border: none; font-family: inherit;">
+          <svg style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; flex-shrink: 0;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copyEmailText">複製 Email 信箱</span>
+        </button>
         <a class="btn btn-ghost" href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </div>
@@ -184,9 +191,73 @@ const projects = [
     .ptitle strong { font-size: 17px; }
     .ptitle .muted { font-size: 13px; }
     .pdesc { font-size: 13.5px; line-height: 1.65; margin: 10px 0 0; }
+    
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tag-update {
+      display: none;
+      align-items: center;
+      gap: 4.5px;
+      border-style: dashed;
+      background: transparent;
+      color: var(--muted);
+    }
 
     @media (max-width: 560px) {
       .project-list { grid-template-columns: 1fr; }
     }
   </style>
+  
+  <script is:inline>
+    // 非同步向 GitHub API 抓取公開專案的最後更新時間
+    const fetchRepoUpdateDate = (repoName, elementId) => {
+      fetch(`https://api.github.com/repos/${repoName}`)
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(data => {
+          const date = new Date(data.pushed_at || data.updated_at);
+          const formatted = `更新於 ${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+          const el = document.getElementById(elementId);
+          if (el) {
+            el.innerHTML = `
+              <svg style="width:11px; height:11px; flex-shrink:0; margin-top:0.5px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}</span>
+            `;
+            el.style.display = 'inline-flex';
+          }
+        })
+        .catch(() => {});
+    };
+
+    // 只有公開且為開源儲存庫的專案拉取日期
+    fetchRepoUpdateDate('Min-987/psd_to_png', 'update-psd-to-png');
+    fetchRepoUpdateDate('Min-987/min-987.github.io', 'update-liquid-focus');
+
+    // 複製信箱功能整合 Toast 提示
+    const copyEmailBtn = document.getElementById('copyEmailBtn');
+    const copyEmailText = document.getElementById('copyEmailText');
+    const emailStr = 'n200127@gmail.com';
+
+    if (copyEmailBtn && copyEmailText) {
+      copyEmailBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(emailStr).then(() => {
+          copyEmailText.innerText = '已複製！';
+          // @ts-ignore
+          if (window.showToast) {
+            // @ts-ignore
+            window.showToast('Email 信箱已複製至剪貼簿！');
+          }
+          setTimeout(() => {
+            copyEmailText.innerText = '複製 Email 信箱';
+          }, 2000);
+        }).catch(() => {
+          // 降級備用方案：在極少數不支援 clipboard API 的瀏覽器（如極舊款 iOS 瀏覽器）中直接調起郵箱
+          window.location.href = `mailto:${emailStr}`;
+        });
+      });
+    }
+  </script>
 </Base>

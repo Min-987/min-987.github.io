@@ -1,0 +1,329 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<Base title="404 — 頁面流失了" description="糟糕！您訪問的頁面隨水流逝了。">
+  <div class="container-404">
+    <div class="wrap" style="text-align: center; padding-top: 60px;">
+      <h1 class="title-404">404</h1>
+      <p class="subtitle-404" id="statusText">水漏乾了，頁面就流失了。你能挽救它嗎？ 💧</p>
+      
+      <!-- 互動 Canvas 水杯 -->
+      <div class="canvas-container">
+        <canvas id="leakCanvas" width="300" height="300"></canvas>
+      </div>
+
+      <div class="btn-row" style="justify-content: center; margin-top: 20px;">
+        <a class="btn btn-primary" href={`${base}/`}>返回首頁</a>
+      </div>
+    </div>
+  </div>
+
+  <style is:inline>
+    .container-404 {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .title-404 {
+      font-size: clamp(80px, 15vw, 120px);
+      line-height: 1;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .subtitle-404 {
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 30px;
+      transition: color 0.3s ease;
+    }
+    .canvas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 auto;
+      max-width: 320px;
+    }
+    #leakCanvas {
+      background: transparent;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+  </style>
+
+  <script is:inline>
+    (function() {
+      const canvas = document.getElementById('leakCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const statusText = document.getElementById('statusText');
+
+      // 物理參數
+      let waterHeight = 110; // 最大高度 120，0為空
+      const maxWater = 120;
+      const cupWidth = 110;
+      const cupHeight = 150;
+      const cupLeft = (canvas.width - cupWidth) / 2;
+      const cupTop = (canvas.height - cupHeight) / 2 + 10;
+      const cupBottom = cupTop + cupHeight;
+      const cupRight = cupLeft + cupWidth;
+
+      // 漏洞中心點 (杯子底部中偏右一點)
+      const holeX = cupLeft + cupWidth * 0.75;
+      const holeY = cupBottom;
+      const holeRadius = 6;
+
+      let isPlugged = false;
+      let mouseX = 0;
+      let mouseY = 0;
+      let waveAngle = 0;
+
+      // 粒子陣列
+      let droplets = [];
+      let splashes = [];
+
+      // 監聽滑鼠移動
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+
+        // 偵測滑鼠是否靠近杯底漏洞
+        const dist = Math.hypot(mouseX - holeX, mouseY - holeY);
+        if (dist < 18 && waterHeight > 0) {
+          if (!isPlugged) {
+            isPlugged = true;
+            if (statusText) {
+              statusText.innerText = '💪 漏水被你堵住囉！水面停止下降了！';
+              statusText.style.color = 'var(--accent)';
+            }
+          }
+        } else {
+          if (isPlugged) {
+            isPlugged = false;
+            if (statusText) {
+              statusText.innerText = '水漏乾了，頁面就流失了。你能挽救它嗎？ 💧';
+              statusText.style.color = 'var(--muted)';
+            }
+          }
+        }
+      });
+
+      // 監聽滑鼠移出
+      canvas.addEventListener('mouseleave', () => {
+        if (isPlugged) {
+          isPlugged = false;
+          if (statusText) {
+            statusText.innerText = '水漏乾了，頁面就流失了。你能挽救它嗎？ 💧';
+            statusText.style.color = 'var(--muted)';
+          }
+        }
+      });
+
+      // 點擊加水
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        // 只有點在杯子上方或內部才有效，或者全畫面上點擊都加水
+        waterHeight = Math.min(maxWater, waterHeight + 25);
+        
+        // 產生加水噴濺粒子
+        const spawnY = cupBottom - waterHeight;
+        for (let i = 0; i < 8; i++) {
+          splashes.push({
+            x: clickX > cupLeft && clickX < cupRight ? clickX : cupLeft + cupWidth / 2 + (Math.random() - 0.5) * 40,
+            y: spawnY,
+            vx: (Math.random() - 0.5) * 5,
+            vy: -Math.random() * 4 - 2,
+            radius: Math.random() * 3 + 1.5,
+            alpha: 1
+          });
+        }
+
+        if (waterHeight > 0 && !isPlugged) {
+          if (statusText) {
+            statusText.innerText = '水漏乾了，頁面就流失了。你能挽救它嗎？ 💧';
+            statusText.style.color = 'var(--muted)';
+          }
+        }
+      });
+
+      // 物理渲染循環
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 讀取 CSS 主題顏色變數
+        const style = getComputedStyle(document.documentElement);
+        const accentColor = style.getPropertyValue('--accent').trim() || '#6c8cff';
+        const accentColor2 = style.getPropertyValue('--accent-2').trim() || '#a06bff';
+        const textColor = style.getPropertyValue('--text').trim() || '#eceef4';
+
+        // 1. 物理邏輯更新
+        if (waterHeight > 0 && !isPlugged) {
+          // 漏水速度
+          waterHeight = Math.max(0, waterHeight - 0.12);
+          
+          // 每隔幾幀產生漏水水滴
+          if (Math.random() < 0.35 && waterHeight > 0) {
+            droplets.push({
+              x: holeX + (Math.random() - 0.5) * 3,
+              y: holeY,
+              vy: 1,
+              ay: 0.12,
+              radius: Math.random() * 2 + 2
+            });
+          }
+
+          if (waterHeight === 0 && statusText) {
+            statusText.innerText = '💧 水滴乾了... 頁面也已經徹底流失了。';
+            statusText.style.color = '#ff6b6b';
+          }
+        }
+
+        // 更新水滴粒子
+        for (let i = droplets.length - 1; i >= 0; i--) {
+          const d = droplets[i];
+          d.vy += d.ay;
+          d.y += d.vy;
+          if (d.y > canvas.height) {
+            droplets.splice(i, 1);
+          }
+        }
+
+        // 更新噴濺粒子
+        for (let i = splashes.length - 1; i >= 0; i--) {
+          const s = splashes[i];
+          s.x += s.vx;
+          s.y += s.vy;
+          s.vy += 0.15; // 重力
+          s.alpha -= 0.02;
+          if (s.alpha <= 0 || s.y > cupBottom) {
+            splashes.splice(i, 1);
+          }
+        }
+
+        waveAngle += 0.08;
+
+        // 2. 渲染液體
+        if (waterHeight > 0) {
+          ctx.save();
+          
+          // 建立剪裁區限制在杯子內
+          ctx.beginPath();
+          ctx.moveTo(cupLeft + 2, cupTop);
+          ctx.lineTo(cupLeft + 2, cupBottom - 2);
+          ctx.lineTo(cupRight - 2, cupBottom - 2);
+          ctx.lineTo(cupRight - 2, cupTop);
+          ctx.closePath();
+          ctx.clip();
+
+          // 繪製水面與水體
+          ctx.beginPath();
+          const currentY = cupBottom - waterHeight;
+          ctx.moveTo(cupLeft - 10, cupBottom + 10);
+          
+          // 用正弦波繪製水面波動
+          for (let x = cupLeft - 10; x <= cupRight + 10; x += 5) {
+            const waveY = currentY + Math.sin(waveAngle + x * 0.05) * 4;
+            ctx.lineTo(x, waveY);
+          }
+          
+          ctx.lineTo(cupRight + 10, cupBottom + 10);
+          ctx.closePath();
+
+          // 液體顏色漸層
+          const waterGlow = ctx.createLinearGradient(cupLeft, cupTop, cupLeft, cupBottom);
+          waterGlow.addColorStop(0, accentColor);
+          waterGlow.addColorStop(1, accentColor2);
+          ctx.fillStyle = waterGlow;
+          ctx.globalAlpha = 0.85;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 3. 繪製漏水水滴
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.8;
+        for (const d of droplets) {
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 4. 繪製點擊加水噴濺粒子
+        for (const s of splashes) {
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+          ctx.fillStyle = accentColor;
+          ctx.globalAlpha = s.alpha;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        // 5. 繪製水杯本體
+        ctx.beginPath();
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = textColor;
+        
+        // 杯子左側與右側 (帶漏洞底部的開口杯)
+        ctx.moveTo(cupLeft, cupTop);
+        ctx.lineTo(cupLeft, cupBottom);
+        
+        // 杯底分兩段畫，以在 holeX 處留出缺口
+        ctx.lineTo(holeX - holeRadius, cupBottom);
+        ctx.moveTo(holeX + holeRadius, cupBottom);
+        ctx.lineTo(cupRight, cupBottom);
+        ctx.lineTo(cupRight, cupTop);
+        ctx.stroke();
+
+        // 繪製漏洞邊緣的圓滑端點
+        ctx.fillStyle = textColor;
+        ctx.beginPath();
+        ctx.arc(holeX - holeRadius, cupBottom, 2, 0, Math.PI * 2);
+        ctx.arc(holeX + holeRadius, cupBottom, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 6. 繪製「堵漏」的手指或瓶塞標記
+        if (isPlugged && waterHeight > 0) {
+          // 繪製一個代表塞子或手指的半透明圓圈
+          ctx.fillStyle = '#ff6b6b';
+          ctx.globalAlpha = 0.85;
+          ctx.beginPath();
+          ctx.arc(holeX, holeY, 9, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.strokeStyle = textColor;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.globalAlpha = 1.0;
+        }
+
+        // 7. 繪製漏洞處引導使用者的虛線微調提示圈
+        if (!isPlugged && waterHeight > 0) {
+          const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.2;
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.arc(holeX, holeY, 13 * pulse, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]); // 重設虛線設定
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</Base>
