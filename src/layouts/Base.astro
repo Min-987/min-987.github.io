@@ -12,6 +12,22 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     {description && <meta name="description" content={description} />}
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          return 'light';
+        }
+        return 'dark';
+      })();
+      if (theme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+    </script>
     <style is:global>
       :root {
         --bg: #0c0d11;
@@ -22,6 +38,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         --accent: #6c8cff;
         --accent-2: #a06bff;
         --border: #252934;
+      }
+      html.light {
+        --bg: #f5f6fa;
+        --surface: #ffffff;
+        --surface-2: #eef1f6;
+        --text: #1b1e28;
+        --muted: #6b7280;
+        --accent: #3b82f6;
+        --accent-2: #8b5cf6;
+        --border: #e2e8f0;
+      }
+      html.light .bg-glow::before { opacity: .18; }
+      html.light .bg-glow::after { opacity: .12; }
+      html.light header.site nav a.active {
+        text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
       html { scroll-behavior: smooth; }
@@ -66,7 +97,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         border-bottom: 1px solid var(--border);
         padding: 16px 0;
         position: sticky; top: 0;
-        background: rgba(12,13,17,.8);
+        background: color-mix(in srgb, var(--bg) 80%, transparent);
         backdrop-filter: blur(12px);
         z-index: 10;
       }
@@ -81,6 +112,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         font-weight: 600;
         text-shadow: 0 0 10px rgba(108, 140, 255, 0.6);
       }
+
+      /* Theme Toggle Button */
+      .theme-toggle-btn {
+        background: none; border: none; cursor: pointer;
+        color: var(--muted); margin-left: 22px; width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 8px; transition: color 0.25s, background-color 0.25s, transform 0.25s;
+        outline: none;
+      }
+      .theme-toggle-btn:hover {
+        color: var(--text);
+        background-color: var(--surface-2);
+        transform: scale(1.05);
+      }
+      .theme-toggle-btn:active {
+        transform: scale(0.95);
+      }
+      .theme-toggle-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+      }
+      html.light .theme-toggle-btn .sun { display: none; }
+      html:not(.light) .theme-toggle-btn .moon { display: none; }
 
       main { padding: 0 0 96px; }
       section { padding: 56px 0 0; }
@@ -199,10 +254,26 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <header class="site">
       <div class="wrap">
         <a class="logo" href={`${base}/`}>Min<span style="color:var(--accent)">.</span></a>
-        <nav>
+        <nav style="display: flex; align-items: center;">
           <a href={`${base}/#about`}>關於</a>
           <a href={`${base}/#projects`}>作品</a>
           <a href={`${base}/#contact`}>聯絡</a>
+          <button id="themeToggle" class="theme-toggle-btn" aria-label="切換主題">
+            <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
         </nav>
       </div>
     </header>
@@ -253,6 +324,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
               link.classList.add('active');
             }
           });
+        });
+      }
+
+      // 主題切換 (Light / Dark Theme Toggle)
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const isLight = document.documentElement.classList.toggle('light');
+          localStorage.setItem('theme', isLight ? 'light' : 'dark');
         });
       }
     </script>

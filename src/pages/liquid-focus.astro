@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Liquid Focus — 液態番茄鐘</title>
-<style>
+<style is:inline>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body {
     width:100%; height:100vh; height:100dvh; overflow:hidden;
@@ -538,7 +538,7 @@
 
 <div class="hint">整個畫面就是進度 · 液體滿溢即完成</div>
 
-<script>
+<script is:inline>
 let totalSeconds = 25*60;
 let remaining = totalSeconds;
 let timerId = null;
