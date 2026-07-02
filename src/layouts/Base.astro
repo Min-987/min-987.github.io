@@ -114,16 +114,37 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
       /* header */
       header.site {
-        border-bottom: 1px solid var(--border);
-        padding: 16px 0;
+        padding: 20px 0;
         position: sticky; top: 0;
-        background: color-mix(in srgb, var(--bg) 80%, transparent);
-        backdrop-filter: blur(12px);
-        z-index: 10;
+        z-index: 100;
+        width: 100%;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        background: transparent;
       }
-      header.site .wrap { display: flex; justify-content: space-between; align-items: center; }
+      header.site.scrolled {
+        top: 16px;
+        padding: 6px 0;
+      }
+      header.site .nav-capsule {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 12px 24px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      header.site.scrolled .nav-capsule {
+        background: color-mix(in srgb, var(--surface) 75%, transparent);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 30px -10px rgba(0,0,0,0.15);
+      }
       header.site a.logo {
-        font-weight: 700; color: var(--text); text-decoration: none; font-size: 17px;
+        font-weight: 700; color: var(--text); text-decoration: none; font-size: 18px;
         letter-spacing: .3px;
       }
       header.site nav a { color: var(--muted); text-decoration: none; margin-left: 22px; font-size: 14px; transition: color .2s, text-shadow .2s; }
@@ -237,16 +258,20 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       /* skills grid */
       .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
       .skill {
-        background: var(--surface); border: 1px solid var(--border);
-        border-radius: 12px; padding: 14px 16px; font-size: 14px;
-        transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-        display: flex; align-items: center; gap: 12px;
+        background: var(--surface);
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        border-radius: 16px; padding: 16px 20px; font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        display: flex; align-items: center; gap: 14px;
       }
       .skill:hover {
-        transform: translateY(-3px);
-        border-color: var(--accent);
-        background: var(--surface-2);
-        box-shadow: 0 8px 24px -8px rgba(108, 140, 255, 0.25);
+        transform: translateY(-4px);
+        border-color: var(--accent-2);
+        background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+        box-shadow: 0 10px 25px -10px color-mix(in srgb, var(--accent-2) 40%, transparent);
       }
       .skill .si {
         font-size: 24px;
@@ -338,28 +363,30 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="bg-glow"></div>
     <header class="site">
       <div class="wrap">
-        <a class="logo" href={`${base}/`}>Min<span style="color:var(--accent)">.</span></a>
-        <nav style="display: flex; align-items: center;">
-          <a href={`${base}/#about`}>關於</a>
-          <a href={`${base}/#projects`}>作品</a>
-          <a href={`${base}/#contact`}>聯絡</a>
-          <button id="themeToggle" class="theme-toggle-btn" aria-label="切換主題">
-            <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </button>
-        </nav>
+        <div class="nav-capsule">
+          <a class="logo" href={`${base}/`}>Min<span style="color:var(--accent)">.</span></a>
+          <nav style="display: flex; align-items: center;">
+            <a href={`${base}/#about`}>關於</a>
+            <a href={`${base}/#projects`}>作品</a>
+            <a href={`${base}/#contact`}>聯絡</a>
+            <button id="themeToggle" class="theme-toggle-btn" aria-label="切換主題">
+              <svg class="sun" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+              <svg class="moon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </button>
+          </nav>
+        </div>
       </div>
     </header>
     <main>
@@ -383,6 +410,21 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     </footer>
     <div id="toastContainer" class="toast-container"></div>
     <script>
+      // 導覽列滾動膠囊縮小 (Floating Nav Capsule Toggle)
+      const headerSite = document.querySelector('header.site');
+      if (headerSite) {
+        const toggleHeaderScrolled = () => {
+          if (window.scrollY > 40) {
+            headerSite.classList.add('scrolled');
+          } else {
+            headerSite.classList.remove('scrolled');
+          }
+        };
+        window.addEventListener('scroll', toggleHeaderScrolled);
+        // 初始化檢查
+        toggleHeaderScrolled();
+      }
+
       // 區塊滑入時淡入（無 JS 時內容照常顯示）
       const mq = window.matchMedia('(prefers-reduced-motion: no-preference)');
       if (mq.matches) {

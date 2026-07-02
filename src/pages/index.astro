@@ -48,7 +48,7 @@ const projects = [
         <span class="pill"><span class="dot"></span>開放專案合作</span>
         <span class="pill">📲 ExpiryRP 即將上架</span>
       </div>
-      <h1>嗨，我是 <span class="gradient-text">Min</span> 👋<br/>我打造實用的 App。</h1>
+      <h1>嗨，我是 <span class="gradient-text">Min</span> 👋<br/>我打造實用的 <span class="typing-text" id="typingText">行動 App</span></h1>
       <p class="lead">
         喜歡把生活中的小麻煩，變成<span class="accent">好用的工具</span>。
         善用各種工具把腦中的點子做成真的能用的東西。
@@ -65,12 +65,12 @@ const projects = [
     <div class="wrap">
       <h2><span class="num">01</span> 關於我</h2>
       <p>
-        比起鑽研艱深的技術，我更在意一個東西<strong>好不好用、能不能真的解決問題</strong>。
+        比起鑽研艱深的技術，我更在意一個東西是否<span class="about-highlight-1">好不好用、能不能真的解決問題</span>。
         我喜歡從一個生活中的小困擾出發，一步步把它變成可以實際使用的產品。
       </p>
       <p class="muted">
         在各種現代工具（包含 AI）的協助下，我能把想法快速做成成品——
-        ExpiryRP 就是這樣誕生的。我享受這個從零到一、邊做邊學的過程。
+        ExpiryRP 就是這樣誕生的。我享受這個<span class="about-highlight-2">從零到一、邊做邊學</span>的過程。
       </p>
     </div>
   </section>
@@ -100,15 +100,21 @@ const projects = [
       <div class="project-list">
         {projects.map((p) => (
           <a class="project" href={p.href} target={p.external ? '_blank' : undefined} rel={p.external ? 'noopener' : undefined} style={`--g1:${p.g1}; --g2:${p.g2};`}>
-            <div class="banner"><span>{p.emoji}</span></div>
-            <div class="pbody">
-              <div class="ptitle">
+            <div class="project-header">
+              <div class="project-icon">
+                <span>{p.emoji}</span>
+              </div>
+              <div class="project-title-group">
                 <strong>{p.title}</strong>
                 <span class="muted">{p.sub}</span>
               </div>
+            </div>
+            <div class="pbody">
               <p class="muted pdesc">{p.desc}</p>
-              <div class="tags">
-                {p.tags.map((t) => <span class="tag">{t}</span>)}
+              <div class="project-footer">
+                <div class="tags">
+                  {p.tags.map((t) => <span class="tag">{t}</span>)}
+                </div>
                 <span class="tag tag-update" id={`update-${p.href.split('/').pop()}`}></span>
               </div>
             </div>
@@ -122,7 +128,7 @@ const projects = [
   <section id="contact">
     <div class="wrap">
       <h2><span class="num">04</span> 聯絡</h2>
-      <p>有專案合作、工作機會或單純想聊聊，都歡迎直接填寫表單，或複製 Email 信箱 👇</p>
+      <p>有專案合作、工作機會或單純想聊聊，都歡迎直接填寫表單 👇</p>
       
       <!-- HubSpot 嵌入表單 (改為自訂原生表單以完美契合樣式) -->
       <div class="form-container">
@@ -152,6 +158,64 @@ const projects = [
   </section>
 
   <style>
+    /* 打字機效果 caret 閃爍 */
+    .typing-text {
+      color: var(--accent);
+      border-right: 2px solid var(--accent);
+      padding-right: 4px;
+      animation: blink-caret 0.75s step-end infinite;
+      white-space: nowrap;
+    }
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--accent); }
+    }
+
+    /* 關於我：精細網格背景與文字高光 */
+    #about {
+      position: relative;
+      overflow: hidden;
+    }
+    #about::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(color-mix(in srgb, var(--text) 18%, transparent) 1.2px, transparent 1.2px);
+      background-size: 20px 20px;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: -1;
+      mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+    }
+
+    .about-highlight-1 {
+      font-weight: 700;
+      color: var(--text);
+      position: relative;
+      display: inline-block;
+    }
+    .about-highlight-1::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 2px;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      z-index: -1;
+      opacity: 0.4;
+      border-radius: 4px;
+    }
+    
+    .about-highlight-2 {
+      font-weight: 700;
+      background: linear-gradient(120deg, var(--accent-2), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
     /* 狀態標籤 */
     .status-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
     .pill {
@@ -176,90 +240,211 @@ const projects = [
       -webkit-text-fill-color: var(--accent);
     }
 
-    /* 技能：加圖示 */
-    .skill { display: flex; align-items: center; gap: 12px; }
-    .skill .si { font-size: 24px; }
+    /* 技能：加圖示與高階 Glassmorphism */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .skill {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--surface);
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .skill:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent-2);
+      background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+      box-shadow: 0 10px 25px -10px color-mix(in srgb, var(--accent-2) 40%, transparent);
+    }
+    .skill .si {
+      font-size: 24px;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-block;
+    }
+    .skill:hover .si {
+      transform: scale(1.2) rotate(8deg);
+    }
+    .skill .k { font-weight: 600; font-size: 14.5px; }
+    .skill .v { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 
-    /* 作品卡：彩色漸層橫幅 */
-    .project-list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    /* 作品卡：高階 Glassmorphism 磨砂玻璃設計 */
+    .project-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+    
     .project {
-      display: block; text-decoration: none; color: var(--text);
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 18px; overflow: hidden;
-      transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  border-color 0.25s,
-                  box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: var(--text);
+      background: var(--surface); /* 靜態回退 */
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  border-color 0.3s,
+                  box-shadow 0.3s;
     }
+
     .project:hover {
-      transform: translateY(-5px);
+      transform: translateY(-6px);
       border-color: var(--g2);
-      box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--g2) 30%, transparent);
+      box-shadow: 0 20px 40px -15px color-mix(in srgb, var(--g2) 35%, transparent);
     }
-    .project .banner {
-      height: 96px; display: flex; align-items: center; justify-content: center;
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .project-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
       background: linear-gradient(135deg, var(--g1), var(--g2));
+      box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--g2) 40%, transparent);
       position: relative;
     }
-    .project .banner span { font-size: 44px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.25)); }
-    .pbody { padding: 18px 20px 20px; }
-    .ptitle { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-    .ptitle strong { font-size: 17px; }
-    .ptitle .muted { font-size: 13px; }
-    .pdesc { font-size: 13.5px; line-height: 1.65; margin: 10px 0 0; }
-    
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+    .project-icon span {
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .project:hover .project-icon span {
+      transform: scale(1.15) rotate(6deg);
+    }
+
+    .project-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
+    }
+
+    .project-title-group strong {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .project-title-group .muted {
+      font-size: 13px;
+    }
+
+    .pbody {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .pdesc {
+      font-size: 13.5px;
+      line-height: 1.65;
+      margin: 0 0 20px 0;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .project-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
     .tag-update {
+      align-self: flex-start;
       display: none;
       align-items: center;
-      gap: 4.5px;
+      gap: 5px;
+      font-size: 11.5px;
       border-style: dashed;
       background: transparent;
       color: var(--muted);
+      padding: 3px 8px;
     }
 
-    /* 聯絡我表單容器 */
+    /* 聯絡我表單容器 (高階 Glassmorphism) */
     .form-container {
-      max-width: 560px;
-      margin: 32px 0;
-      background: var(--surface-2);
+      max-width: 580px;
+      margin: 40px 0;
+      background: var(--surface-2); /* 靜態回退 */
+      background: color-mix(in srgb, var(--surface-2) 65%, transparent);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
-      padding: 32px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.06);
+      padding: 36px;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px -15px rgba(0,0,0,0.12);
+      text-align: left;
     }
     .contact-form {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      text-align: left;
     }
     .form-group label {
-      font-size: 12.5px;
+      font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.5px;
       color: var(--muted);
+      padding-left: 2px;
     }
     .form-group input,
     .form-group textarea {
       width: 100%;
       box-sizing: border-box;
       background: var(--surface);
+      background: color-mix(in srgb, var(--surface) 50%, transparent);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 13px 16px;
-      border-radius: 12px;
-      font-size: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 14.5px;
       font-family: inherit;
-      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .form-group input::placeholder,
     .form-group textarea::placeholder {
-      color: color-mix(in srgb, var(--muted) 50%, transparent);
+      color: color-mix(in srgb, var(--muted) 45%, transparent);
     }
     .form-group input:hover,
     .form-group textarea:hover {
@@ -270,11 +455,37 @@ const projects = [
       border-color: var(--accent);
       outline: none;
       background: var(--surface-2);
+      background: color-mix(in srgb, var(--surface-2) 80%, transparent);
       box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
     }
+    #formSubmitBtn {
+      align-self: flex-start;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    #formSubmitBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+    #formSubmitBtn:active {
+      transform: translateY(0);
+    }
 
-    @media (max-width: 560px) {
-      .project-list { grid-template-columns: 1fr; }
+    @media (max-width: 960px) {
+      .project-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .project-list {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
     }
   </style>
   
@@ -386,8 +597,42 @@ const projects = [
             // @ts-ignore
             formSubmitBtn.disabled = false;
           }, 3000);
-        });
       });
     }
+
+    // 打字機切換效果 (Typing Carousel Effect)
+    const words = ['行動 App 📱', '網頁應用 🌐', '桌面工具 🖼️'];
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typingTextEl = document.getElementById('typingText');
+    
+    function typeEffect() {
+      if (!typingTextEl) return;
+      const currentWord = words[wordIndex];
+      if (isDeleting) {
+        charIndex--;
+      } else {
+        charIndex++;
+      }
+      
+      typingTextEl.innerText = currentWord.substring(0, charIndex);
+      
+      let speed = isDeleting ? 40 : 100;
+      
+      if (!isDeleting && charIndex === currentWord.length) {
+        speed = 2000; // 完整單字停留
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        speed = 400; // 切換新詞間隔
+      }
+      
+      setTimeout(typeEffect, speed);
+    }
+    
+    // 啟動打字效果
+    setTimeout(typeEffect, 1000);
   </script>
 </Base>
