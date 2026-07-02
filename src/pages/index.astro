@@ -525,7 +525,7 @@ const projects = [
     const formSubmitBtn = document.getElementById('formSubmitBtn');
 
     if (contactForm && formSubmitBtn) {
-      contactForm.addEventListener('submit', (e) => {
+      contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const originalText = formSubmitBtn.innerText;
@@ -547,6 +547,18 @@ const projects = [
         };
         const hutk = getCookie('hubspotutk');
 
+        // 獲取訪客 IP 以消除 HubSpot 後台警告
+        let ipAddress = undefined;
+        try {
+          const ipResponse = await fetch('https://api.ipify.org?format=json');
+          if (ipResponse.ok) {
+            const ipData = await ipResponse.json();
+            ipAddress = ipData.ip;
+          }
+        } catch (err) {
+          console.warn('Failed to fetch client IP:', err);
+        }
+
         const requestData = {
           fields: [
             { name: 'email', value: email },
@@ -555,6 +567,7 @@ const projects = [
           ],
           context: {
             hutk: hutk, // 傳遞 Cookie 以連結現有聯絡人行為分析
+            ipAddress: ipAddress,
             pageUri: window.location.href,
             pageName: document.title
           }
@@ -597,6 +610,7 @@ const projects = [
             // @ts-ignore
             formSubmitBtn.disabled = false;
           }, 3000);
+        });
       });
     }
 
