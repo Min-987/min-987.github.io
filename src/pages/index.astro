@@ -122,7 +122,29 @@ const projects = [
   <section id="contact">
     <div class="wrap">
       <h2><span class="num">04</span> 聯絡</h2>
-      <p>有專案合作、工作機會或單純想聊聊，都歡迎來信 👇</p>
+      <p>有專案合作、工作機會或單純想聊聊，都歡迎直接填寫表單，或複製 Email 信箱 👇</p>
+      
+      <!-- HubSpot 嵌入表單 (改為自訂原生表單以完美契合樣式) -->
+      <div class="form-container">
+        <form id="hsContactForm" class="contact-form">
+          <div class="form-group">
+            <label for="formName">您的名字</label>
+            <input type="text" id="formName" name="firstname" required placeholder="例如：王小明" />
+          </div>
+          <div class="form-group">
+            <label for="formEmail">電子信箱</label>
+            <input type="email" id="formEmail" name="email" required placeholder="your.email@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="formMessage">訊息內容</label>
+            <textarea id="formMessage" name="message" required placeholder="想對我說的話..." rows="5"></textarea>
+          </div>
+          <button type="submit" id="formSubmitBtn" class="btn btn-primary" style="border: none; cursor: pointer; margin-top: 10px;">
+            送出訊息
+          </button>
+        </form>
+      </div>
+
       <div class="btn-row">
         <button id="copyEmailBtn" class="btn btn-primary" style="cursor: pointer; border: none; font-family: inherit;">
           <svg style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; flex-shrink: 0;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -202,6 +224,62 @@ const projects = [
       color: var(--muted);
     }
 
+    /* 聯絡我表單容器 */
+    .form-container {
+      max-width: 560px;
+      margin: 32px 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.06);
+    }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+    .form-group label {
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: color-mix(in srgb, var(--muted) 50%, transparent);
+    }
+    .form-group input:hover,
+    .form-group textarea:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      outline: none;
+      background: var(--surface-2);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+
     @media (max-width: 560px) {
       .project-list { grid-template-columns: 1fr; }
     }
@@ -256,6 +334,87 @@ const projects = [
         }).catch(() => {
           // 降級備用方案：在極少數不支援 clipboard API 的瀏覽器（如極舊款 iOS 瀏覽器）中直接調起郵箱
           window.location.href = `mailto:${emailStr}`;
+        });
+      });
+    }
+
+    // HubSpot 客製化原生表單非同步 API 串接
+    const contactForm = document.getElementById('hsContactForm');
+    const formSubmitBtn = document.getElementById('formSubmitBtn');
+
+    if (contactForm && formSubmitBtn) {
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const originalText = formSubmitBtn.innerText;
+        formSubmitBtn.innerText = '正在傳送...';
+        // @ts-ignore
+        formSubmitBtn.disabled = true;
+
+        const formData = new FormData(contactForm);
+        const email = formData.get('email');
+        const firstname = formData.get('firstname');
+        const message = formData.get('message');
+
+        // 讀取 HubSpot Cookie (hubspotutk) 用於關聯訪客活動軌跡
+        const getCookie = (name) => {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(';').shift();
+          return undefined;
+        };
+        const hutk = getCookie('hubspotutk');
+
+        const requestData = {
+          fields: [
+            { name: 'email', value: email },
+            { name: 'firstname', value: firstname },
+            { name: 'message', value: message }
+          ],
+          context: {
+            hutk: hutk, // 傳遞 Cookie 以連結現有聯絡人行為分析
+            pageUri: window.location.href,
+            pageName: document.title
+          }
+        };
+
+        fetch('https://api.hsforms.com/submissions/v3/integration/submit/246598809/edd1001f-05c1-449e-a6d9-34e33a1ec796', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestData)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(() => {
+          contactForm.reset();
+          formSubmitBtn.innerText = '已成功送出！';
+          // @ts-ignore
+          if (window.showToast) {
+            // @ts-ignore
+            window.showToast('聯絡表單已成功送出，我會盡快回覆您！');
+          }
+          setTimeout(() => {
+            formSubmitBtn.innerText = originalText;
+            // @ts-ignore
+            formSubmitBtn.disabled = false;
+          }, 3000);
+        })
+        .catch(() => {
+          formSubmitBtn.innerText = '傳送失敗，請重試';
+          // @ts-ignore
+          if (window.showToast) {
+            // @ts-ignore
+            window.showToast('傳送失敗，請複製 Email 直接來信！');
+          }
+          setTimeout(() => {
+            formSubmitBtn.innerText = originalText;
+            // @ts-ignore
+            formSubmitBtn.disabled = false;
+          }, 3000);
         });
       });
     }
