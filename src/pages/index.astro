@@ -146,13 +146,6 @@ const projects = [
       </div>
 
       <div class="btn-row">
-        <button id="copyEmailBtn" class="btn btn-primary" style="cursor: pointer; border: none; font-family: inherit;">
-          <svg style="width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; flex-shrink: 0;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          <span id="copyEmailText">複製 Email 信箱</span>
-        </button>
         <a class="btn btn-ghost" href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </div>
@@ -314,29 +307,7 @@ const projects = [
     fetchRepoUpdateDate('Min-987/psd_to_png', 'update-psd-to-png');
     fetchRepoUpdateDate('Min-987/min-987.github.io', 'update-liquid-focus');
 
-    // 複製信箱功能整合 Toast 提示
-    const copyEmailBtn = document.getElementById('copyEmailBtn');
-    const copyEmailText = document.getElementById('copyEmailText');
-    const emailStr = 'n200127@gmail.com';
 
-    if (copyEmailBtn && copyEmailText) {
-      copyEmailBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(emailStr).then(() => {
-          copyEmailText.innerText = '已複製！';
-          // @ts-ignore
-          if (window.showToast) {
-            // @ts-ignore
-            window.showToast('Email 信箱已複製至剪貼簿！');
-          }
-          setTimeout(() => {
-            copyEmailText.innerText = '複製 Email 信箱';
-          }, 2000);
-        }).catch(() => {
-          // 降級備用方案：在極少數不支援 clipboard API 的瀏覽器（如極舊款 iOS 瀏覽器）中直接調起郵箱
-          window.location.href = `mailto:${emailStr}`;
-        });
-      });
-    }
 
     // HubSpot 客製化原生表單非同步 API 串接
     const contactForm = document.getElementById('hsContactForm');
