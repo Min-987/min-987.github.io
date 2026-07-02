@@ -303,6 +303,32 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         92% { opacity: 1; transform: translateY(0) scale(1); }
         100% { opacity: 0; transform: translateY(-15px) scale(0.97); }
       }
+      /* 頁尾訪客計數標籤 */
+      .tag-visitor {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 4px 10px;
+        border-radius: 999px;
+        line-height: 1;
+      }
+      .tag-visitor .visitor-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #3ddc97;
+        box-shadow: 0 0 6px #3ddc97;
+        animation: visitor-pulse 2s infinite;
+      }
+      @keyframes visitor-pulse {
+        0% { opacity: 0.4; }
+        50% { opacity: 1; }
+        100% { opacity: 0.4; }
+      }
     </style>
   </head>
   <body>
@@ -342,7 +368,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           <a href="https://github.com/Min-987" target="_blank" rel="noopener">GitHub</a>
           <a href="mailto:n200127@gmail.com">Email</a>
         </div>
-        © {new Date().getFullYear()} Min
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <span>© {new Date().getFullYear()} Min</span>
+          <!-- 不蒜子 UV 訪客計數器顯示容器 -->
+          <span id="busuanzi_container_site_uv" class="tag-visitor" style="display:none;">
+            <span class="visitor-dot"></span>
+            <span>訪客數 <span id="busuanzi_value_site_uv">--</span></span>
+          </span>
+        </div>
       </div>
     </footer>
     <div id="toastContainer" class="toast-container"></div>
@@ -412,6 +445,40 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           toast.remove();
         }, 3000);
       };
+
+      // 動態加載防灌水不蒜子統計 (UV 計數器)
+      // @ts-ignore
+      const isDev = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' || 
+                    localStorage.getItem('exclude_stats') === 'true';
+
+      if (!isDev) {
+        // 非開發者環境：動態插入不蒜子統計代碼
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+        document.head.appendChild(script);
+      } else {
+        // 開發者環境/本地：顯示計數器並標記為已排除，方便開發者驗證
+        const container = document.getElementById('busuanzi_container_site_uv');
+        if (container) {
+          container.style.display = 'inline-flex';
+          const valEl = document.getElementById('busuanzi_value_site_uv');
+          if (valEl) {
+            valEl.innerText = '已排除';
+          }
+          // 將綠色圓點切換為灰色
+          const dot = container.querySelector('.visitor-dot');
+          if (dot) {
+            // @ts-ignore
+            dot.style.background = 'var(--muted)';
+            // @ts-ignore
+            dot.style.boxShadow = 'none';
+            // @ts-ignore
+            dot.style.animation = 'none';
+          }
+        }
+      }
     </script>
   </body>
 </html>
