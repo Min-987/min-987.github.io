@@ -1,5 +1,6 @@
 ---
-import Base from '../layouts/Base.astro';
+import Base from '../../layouts/Base.astro';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const faqs = [
   {
@@ -30,7 +31,7 @@ const faqs = [
         有任何問題、建議或想回報錯誤，都歡迎填寫聯絡表單，我會儘快回覆。
       </p>
       <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn-primary" href="/#contact">填寫聯絡表單</a>
+        <a class="btn btn-primary" href={`${base}/#contact`}>填寫聯絡表單</a>
       </div>
     </div>
   </section>
@@ -51,7 +52,7 @@ const faqs = [
 
   <section>
     <div class="wrap">
-      <p class="muted" style="font-size:14px;">← <a href="/expiryrp">回到 ExpiryRP</a></p>
+      <p class="muted" style="font-size:14px;">← <a href={`${base}/expiryrp`}>回到 ExpiryRP</a></p>
     </div>
   </section>
 
