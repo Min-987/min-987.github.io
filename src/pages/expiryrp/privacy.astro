@@ -8,7 +8,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="wrap">
       <div style="font-size:52px; line-height:1;">🔒</div>
       <h1 style="margin-top:14px;">隱私政策 / Privacy Policy</h1>
-      <span class="badge">最後更新 / Last updated：2026 年 6 月</span>
+      <span class="badge">最後更新 / Last updated：2026 年 7 月</span>
       <p class="lead" style="margin:18px auto 0;">
         本政策說明 ExpiryRP 如何收集、使用與保護你的個人資料。<br>
         This policy explains how ExpiryRP collects, uses, and protects your personal data.
@@ -17,6 +17,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <a href="#zh">中文</a>
         <span>·</span>
         <a href="#en">English</a>
+        <span>·</span>
+        <a href="#ja">日本語</a>
       </div>
     </div>
   </section>
@@ -31,42 +33,43 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <ul>
           <li><strong>帳號資料：</strong>當你以 Google 或 Apple 登入時，我們會取得你的電子郵件、顯示名稱與頭像，用於識別你的帳號。</li>
           <li><strong>你建立的內容：</strong>物品名稱、到期日、分類、數量、備註、條碼、消耗記錄，以及你所屬的家庭群組資訊，儲存於 Firebase Firestore。</li>
+          <li><strong>當機分析資料（診斷資料）：</strong>為了改善 App 穩定性並修復崩潰問題，本 App 整合了 Firebase Crashlytics，會收集匿名當機記錄、裝置型號、OS 版本與當機堆疊追蹤。此資料不含任何可識別您個人身份的敏感資訊。</li>
           <li><strong>回報截圖：</strong>當你透過回報功能上傳截圖時，圖片儲存於 Firebase Storage。</li>
           <li><strong>物品照片：</strong>僅儲存在你的裝置本機（iOS Documents 目錄），不會上傳至任何伺服器。</li>
         </ul>
       </div>
 
       <div class="doc-card">
-        <h3>2. 我們不收集的資料</h3>
+        <h3>2. 我們不收集的資料與隱私承諾</h3>
         <ul>
-          <li>我們<strong>不</strong>收集廣告識別碼或追蹤用戶行為</li>
-          <li>我們<strong>不</strong>將你的資料出售或提供給任何第三方廣告商</li>
-          <li>我們<strong>不</strong>收集精確地理位置</li>
+          <li>我們<strong>不</strong>包含任何廣告，亦不會收集廣告識別碼（IDFA）或追蹤您在其他應用程式中的活動。</li>
+          <li>我們<strong>不</strong>將你的任何資料出售或提供給任何第三方廣告商或行銷機構。</li>
+          <li>我們<strong>不</strong>收集精確的 GPS 地理位置資訊。</li>
         </ul>
       </div>
 
       <div class="doc-card">
         <h3>3. 資料的使用方式</h3>
         <ul>
-          <li>提供物品管理、到期提醒與家庭共享等核心功能</li>
-          <li>在家庭群組成員之間同步物品資料</li>
-          <li>產生消耗與浪費統計</li>
-          <li>發送本機通知，於物品到期前 1、3、7 天提醒你</li>
+          <li>提供物品管理、到期提醒與家庭共享等核心功能。</li>
+          <li>在家庭群組成員之間即時同步物品資料。</li>
+          <li>產生消耗與浪費分析統計圖表。</li>
+          <li>發送本機通知，於物品到期前 1、3、7 天提醒你。</li>
         </ul>
       </div>
 
       <div class="doc-card">
         <h3>4. 資料儲存與第三方服務</h3>
         <p>
-          本 App 使用 Google Firebase（Authentication 與 Cloud Firestore）儲存帳號與物品資料，
+          本 App 使用 Google Firebase（Authentication、Cloud Firestore 與 Crashlytics）儲存帳號、物品資料並收集匿名當機診斷數據，
           受 <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase 隱私政策</a>規範。
           條碼商品資訊查詢使用 <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> 開放資料庫。
         </p>
       </div>
 
       <div class="doc-card">
-        <h3>5. 資料保留與刪除</h3>
-        <p>你可隨時在 App 內編輯或刪除物品。若要刪除整個帳號與所有相關資料，請至官方網站 <a href={`${base}/#contact`}>聯絡表單</a> 提出申請，我們將在 30 天內完成處理。</p>
+        <h3>5. 資料保留與刪除（重要）</h3>
+        <p>你可隨時在 App 內編輯或刪除物品。<strong>若要刪除您的帳號與所有資料，您可以直接在 App 的『設定』頁面點擊『刪除帳號』按鈕，系統將會立即且永久從雲端伺服器中抹除您的帳號及所有備份資料。</strong>或者，您也可以透過官方網站的 <a href={`${base}/#contact`}>聯絡表單</a> 提出申請，我們將在手動驗證後為你處理。</p>
       </div>
 
       <div class="doc-card">
@@ -80,7 +83,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
 
       <div class="doc-card">
-        <h3>8. 聯絡我們</h3>
+        <h3>8. 全球隱私權利 (GDPR / CCPA)</h3>
+        <p>我們尊重您的資料自主權。如果您是歐盟（GDPR）或美國加州（CCPA）居民，您享有以下權利：存取、更正、要求刪除您的個人資料，以及限制我們對您資料的處理。您可以透過我們的聯絡表單提出申請。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>9. 聯絡我們</h3>
         <p>對本政策有任何疑問，請透過官方網站：<a href={`${base}/#contact`}>聯絡表單</a> 與我們聯繫。</p>
       </div>
 
@@ -100,42 +108,43 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <ul>
           <li><strong>Account data:</strong> When you sign in with Google or Apple, we receive your email address, display name, and profile photo, used solely to identify your account.</li>
           <li><strong>Content you create:</strong> Item names, expiry dates, categories, quantities, notes, barcodes, consumption records, and household group data, stored in Firebase Firestore.</li>
+          <li><strong>Crash Analysis (Diagnostic Data):</strong> To improve app stability and fix crashes, the app integrates Firebase Crashlytics, which collects anonymous crash logs, device models, OS versions, and crash stack traces. This data does not contain any personally identifiable information.</li>
           <li><strong>Feedback screenshots:</strong> When you submit feedback with a screenshot, the image is stored in Firebase Storage.</li>
           <li><strong>Item photos:</strong> Stored locally on your device only (iOS Documents directory) and never uploaded to any server.</li>
         </ul>
       </div>
 
       <div class="doc-card">
-        <h3>2. Data We Do NOT Collect</h3>
+        <h3>2. Data We Do NOT Collect & Privacy Commitments</h3>
         <ul>
-          <li>We do <strong>not</strong> collect advertising identifiers or track user behavior</li>
-          <li>We do <strong>not</strong> sell or share your data with third-party advertisers</li>
-          <li>We do <strong>not</strong> collect precise geolocation</li>
+          <li>We do <strong>not</strong> contain any ads, collect advertising identifiers (IDFA), or track your activity across other apps.</li>
+          <li>We do <strong>not</strong> sell or share your data with third-party advertisers or marketing agencies.</li>
+          <li>We do <strong>not</strong> collect precise GPS geolocation info.</li>
         </ul>
       </div>
 
       <div class="doc-card">
         <h3>3. How We Use Your Data</h3>
         <ul>
-          <li>Provide core features: item tracking, expiry reminders, and household sharing</li>
-          <li>Sync item data between household members</li>
-          <li>Generate consumption and waste statistics</li>
-          <li>Send local notifications 1, 3, and 7 days before items expire</li>
+          <li>Provide core features: item tracking, expiry reminders, and household sharing.</li>
+          <li>Sync item data between household members instantly.</li>
+          <li>Generate consumption and waste statistics charts.</li>
+          <li>Send local notifications 1, 3, and 7 days before items expire.</li>
         </ul>
       </div>
 
       <div class="doc-card">
         <h3>4. Data Storage & Third-Party Services</h3>
         <p>
-          The app uses Google Firebase (Authentication and Cloud Firestore) to store account and item data,
+          The app uses Google Firebase (Authentication, Cloud Firestore, and Crashlytics) to store account data and collect anonymous diagnostic logs,
           governed by the <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>.
           Barcode product lookups use the <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> open database.
         </p>
       </div>
 
       <div class="doc-card">
-        <h3>5. Data Retention & Deletion</h3>
-        <p>You may edit or delete items at any time within the app. To delete your entire account and all associated data, please submit a request via our website <a href={`${base}/#contact`}>Contact Form</a>. We will process the request within 30 days.</p>
+        <h3>5. Data Retention & Deletion (Important)</h3>
+        <p>You may edit or delete items at any time within the app. <strong>To delete your entire account and all associated data, you can tap the "Delete Account" button directly in the App's "Settings" page. The system will immediately and permanently erase your account and all backup data from our cloud servers.</strong> Alternatively, you can submit a request via our website <a href={`${base}/#contact`}>Contact Form</a>.</p>
       </div>
 
       <div class="doc-card">
@@ -149,11 +158,90 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
 
       <div class="doc-card">
-        <h3>8. Contact</h3>
+        <h3>8. Global Privacy Rights (GDPR / CCPA)</h3>
+        <p>We respect your data rights. If you are a resident of the European Economic Area (GDPR) or California (CCPA), you have the right to access, rectify, request erasure of your personal data, or restrict its processing. You may exercise these rights by contacting us.</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>9. Contact</h3>
         <p>For any privacy-related questions, please contact us via our website: <a href={`${base}/#contact`}>Contact Form</a>.</p>
       </div>
 
       <p class="muted" style="font-size:14px; margin-top:8px;">← <a href={`${base}/expiryrp`}>Back to ExpiryRP</a></p>
+    </div>
+  </section>
+
+  <hr class="lang-divider" />
+
+  <!-- Japanese -->
+  <section id="ja">
+    <div class="wrap doc">
+      <h2 class="section-title">日本語 (Japanese)</h2>
+
+      <div class="doc-card">
+        <h3>1. 収集するデータ</h3>
+        <ul>
+          <li><strong>アカウント情報：</strong> Google または Apple アカウントでのログイン時、アカウントを識別するためにメールアドレス、表示名、およびプロフィール画像を取得します。</li>
+          <li><strong>登録コンテンツ：</strong> アイテム名、消費期限、カテゴリ、数量、メモ、バーコード、消費履歴、および共有グループの情報を Firebase Firestore に保存します。</li>
+          <li><strong>クラッシュレポート（診断データ）：</strong> アプリの安定性を向上させ、バグを修正するため、当アプリは Firebase Crashlytics を統合しています。これにより、匿名的クラッシュログ、デバイスの機種名、OSのバージョン、およびクラッシュ時のスタックトレースが収集されます。このデータには個人を特定できる情報は一切含まれません。</li>
+          <li><strong>フィードバック画像：</strong> お問い合わせ時にスクリーンショットを添付した場合、その画像は Firebase Storage に保存されます。</li>
+          <li><strong>アイテム写真：</strong> デバイスのローカル（iOS の Documents ディレクトリ）にのみ保存され、いかなるサーバーにもアップロードされません。</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>2. 収集しないデータおよびプライバシーへの約束</h3>
+        <ul>
+          <li>当アプリは広告を一切含まず、広告識別子（IDFA）の収集や、他アプリでのユーザー行動追跡も<strong>一切行いません</strong>。</li>
+          <li>第三者の広告主やマーケティング機関に対して、利用者のデータを販売または共有することは<strong>絶対にありません</strong>。</li>
+          <li>GPSによる詳細な位置情報の収集は<strong>行いません</strong>。</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>3. データの利用目的</h3>
+        <ul>
+          <li>アイテム管理、消費期限の通知、および共有機能といったアプリのコア機能の提供。</li>
+          <li>グループメンバー間でのアイテムデータの即時同期。</li>
+          <li>消費および廃棄に関する統計レポートの作成。</li>
+          <li>アイテムの消費期限前（1日前、3日前、7日前）にお知らせするローカル通知の送信。</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>4. データの保存と外部送信</h3>
+        <p>
+          本アプリは、アカウントおよびアイテムデータの保存、ならびに匿名の診断ログの収集に Google Firebase (Authentication, Cloud Firestore, Crashlytics) を使用しており、Google の <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase プライバシーポリシー</a> が適用されます。
+          バーコードからの商品情報の検索には、オープンデータベースである <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> を利用しています。
+        </p>
+      </div>
+
+      <div class="doc-card">
+        <h3>5. データの保持と削除（重要）</h3>
+        <p>アプリ内でいつでも登録したアイテムを編集または削除できます。<strong>アカウントおよび関連するすべてのデータを削除したい場合は、アプリの「設定」画面にある「アカウント削除」ボタンをタップしてください。システムがアカウントとクラウド上のバックアップデータを即時かつ永久に削除します。</strong>または、ウェブサイトの <a href={`${base}/#contact`}>お問い合わせフォーム</a> からアカウントの削除申請を送信することも可能です。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>6. 子供のプライバシー</h3>
+        <p>本アプリは13歳未満の子供を対象としておらず、子供の個人情報を意圖的に収集することはありません。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>7. プライバシーポリシーの変更</h3>
+        <p>本ポリシーを変更する場合、このページに変更後の内容を掲載し、上部の最終更新日を更新します。変更後に本アプリを引き続き使用することにより、最新のポリシーに同意したものとみなされます。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>8. グローバルプライバシー権 (GDPR / CCPA)</h3>
+        <p>当社は利用者のデータに関する権利を尊重します。欧州経済領域（GDPR）または米国カリフォルニア州（CCPA）の居住者である場合、自身の個人データへのアクセス、修正、削除請求、またはデータ処理的制限を行う権利を有します。これらは、お問い合わせフォームから申請いただけます。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>9. お問い合わせ</h3>
+        <p>本ポリシーに関するご質問は、ウェブサイト：<a href={`${base}/#contact`}>お問い合わせフォーム</a> からお問い合わせください。</p>
+      </div>
+
+      <p class="muted" style="font-size:14px; margin-top:8px;">← <a href={`${base}/expiryrp`}>ExpiryRP に戻る</a></p>
     </div>
   </section>
 
@@ -177,10 +265,17 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     }
     .doc-card {
       background: var(--surface);
+      background: color-mix(in srgb, var(--surface) 60%, transparent);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 22px 24px;
       margin-bottom: 14px;
+      transition: border-color 0.3s ease;
+    }
+    .doc-card:hover {
+      border-color: var(--accent);
     }
     .doc-card h3 {
       font-size: 16px; text-transform: none; letter-spacing: normal;
