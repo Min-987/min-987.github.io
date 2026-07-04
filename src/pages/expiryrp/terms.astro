@@ -39,7 +39,18 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
 
       <div class="doc-card">
-        <h3>3. 使用規範與禁止行為</h3>
+        <h3>3. 訂閱與付款服務</h3>
+        <p>本 App 提供付費訂閱服務（ExpiryRP Pro 升級）以解鎖高級功能。</p>
+        <ul>
+          <li><strong>訂閱方案與價格</strong>：月度訂閱（每月 US$1.99）、年度訂閱（每年 US$11.99）以及終身買斷版（單次付款 US$39.99）。實際價格可能因您所在地區的 App Store 匯率與稅率調整而有所變動。</li>
+          <li><strong>14 天免費試用說明</strong>：首次啟用享有 14 天免費試用期。試用期結束後若未付費訂閱，將會自動降回限制較少的免費版，不進行任何自動扣款。</li>
+          <li><strong>自動續訂與取消</strong>：本訂閱為自動續訂（月/年度方案）。您隨時可以透過 iOS 的「設定」➔「您的 Apple ID」➔「訂閱項目」中管理或取消訂閱。取消訂閱後，系統將會在當期結束後自動降回免費版。您必須在當期訂閱結束前至少 24 小時前取消，否則系統會自動續訂並扣款。</li>
+          <li><strong>退款政策</strong>：所有的交易與付款均由 Apple App Store 處理與管理。若需申請退款，請依 Apple 官方政策處理，我們無法直接為您辦理退款。</li>
+        </ul>
+      </div>
+
+      <div class="doc-card">
+        <h3>4. 使用規範與禁止行為</h3>
         <p>您同意僅將本 App 用於個人的物品與到期日管理，並遵守以下規定：</p>
         <ul>
           <li>不得進行任何可能干擾、損害或惡意超載伺服器或網路系統的行為（如暴力破解、API 濫用）。</li>
@@ -49,28 +60,33 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       </div>
 
       <div class="doc-card">
-        <h3>4. 智慧財產權</h3>
+        <h3>5. 智慧財產權</h3>
         <p>本 App 的所有軟體程式碼、介面設計、視覺外觀、商標及相關文件，智慧財產權與專利權均屬 Min（開發者）所有。未經書面許可，您不得進行複製、修改、散佈，或對軟體進行反向工程、解譯或反向組譯。</p>
       </div>
 
       <div class="doc-card">
-        <h3>5. 服務暫停與帳號刪除</h3>
+        <h3>6. 服務暫停與帳號刪除</h3>
         <p>若您違反本條款，我們保留在不事先通知的情況下，隨時終止或限制您使用本 App，或直接清除您雲端備份資料之權利。您亦可隨時在 App 內『設定』頁面刪除帳號，這將立即永久清除您的所有雲端備份物品資料。</p>
       </div>
 
       <div class="doc-card">
-        <h3>6. 免責聲明與責任限制（重要）</h3>
+        <h3>7. 免責聲明與責任限制（重要）</h3>
         <p><strong>本 App 是按「現狀（As Is）」且「現有（As Available）」的基礎上提供，不提供任何形式的明示或暗示保證。</strong></p>
         <p>雖然我們致力於維護資料同步與提醒功能的穩定，但我們不保證提醒通知 100% 絕不漏送、資料絕對不會因技術問題或雲端異常而遺失。您須自行承擔使用本 App 的風險。我們不對因提醒未送出、資料遺失、商品條碼資訊錯誤，或因食用過期物品而產生的任何直接、間接、附帶或衍生性損失承擔任何賠償責任。</p>
       </div>
 
       <div class="doc-card">
-        <h3>7. 條款修訂</h3>
+        <h3>8. 條款修訂</h3>
         <p>我們保留隨時修改或更換本服務條款的權利。任何變更都會在本頁面上公布，並更新最上方的「最後更新日期」。如果您在條款變更後繼續使用本 App，即代表您同意接受修訂後的條款。</p>
       </div>
 
       <div class="doc-card">
-        <h3>8. 聯絡我們</h3>
+        <h3>9. 準據法與管轄法院</h3>
+        <p>本服務條款的解釋、效力及履行均以<strong>中華民國（台灣）法律</strong>為準據法。因本條款或使用本 App 所引起之任何爭議或訴訟，雙方同意以<strong>臺灣臺北地方法院</strong>為第一審管轄法院。</p>
+      </div>
+
+      <div class="doc-card">
+        <h3>10. 聯絡我們</h3>
         <p>如果您對本服務條款有任何疑問，請透過官方網站：<a href={`${base}/#contact`}>聯絡表單</a> 與我們聯繫。</p>
       </div>
 
@@ -100,8 +116,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>The App offers paid subscription services (ExpiryRP Pro upgrade) to unlock premium features.</p>
         <ul>
           <li><strong>Subscription Plans & Pricing</strong>: Monthly Subscription (US$1.99/month), Yearly Subscription (US$11.99/year), and Lifetime Purchase (one-time payment of US$39.99). Prices may vary depending on local App Store currency exchange rates and taxes.</li>
-          <li><strong>14-Day Free Trial</strong>: First-time subscribers of the yearly plan are eligible for a 14-day free trial. If not cancelled at least 24 hours before the end of the trial period, it will automatically convert to a paid yearly subscription.</li>
-          <li><strong>Auto-Renewal & Cancellation</strong>: Subscriptions automatically renew. You can manage or cancel your subscription at any time via iOS Settings ➔ [Your Apple ID] ➔ Subscriptions.</li>
+          <li><strong>14-Day Free Trial</strong>: First-time users enjoy a 14-day free trial. After the trial ends, if you do not choose to subscribe, the App will automatically downgrade to the free version without automatic billing. If you cancel your subscription, your account will also downgrade to the free version at the end of the term.</li>
+          <li><strong>Auto-Renewal & Cancellation</strong>: Subscriptions automatically renew (monthly/yearly plans). You can manage or cancel your subscription at any time via iOS Settings ➔ [Your Apple ID] ➔ Subscriptions. You must cancel at least 24 hours before the end of the current period to prevent auto-billing.</li>
           <li><strong>Refund Policy</strong>: All transactions and payments are handled and managed by Apple App Store. To request a refund, please follow Apple's refund policy and contact Apple Support directly. We cannot issue refunds on our own.</li>
         </ul>
       </div>
@@ -173,8 +189,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>本アプリは、プレミアム機能を解放するための有料サービス（ExpiryRP Pro へのアップグレード）を提供しています。</p>
         <ul>
           <li><strong>プランと料金</strong>：月間プラン（月額 US$1.99）、年間プラン（年額 US$11.99）、および買い切り型ライフタイムプラン（一回払い US$39.99）。実際の料金は、お住まいの地域の App Store の為替レートや税率によって変動する場合があります。</li>
-          <li><strong>14日間の無料トライアル</strong>：年間プランの初回登録時には14日間の無料トライアルが適用されます。無料体験期間が終了する24時間前までに解約されない場合、自動的に有料の年間プランに移行します。</li>
-          <li><strong>自動更新と解約方法</strong>：サブスクリプションは自動更新されます。解約はいつでも iOS の「設定」➔「Apple ID」➔「サブスクリプション」から管理・解約が可能です。</li>
+          <li><strong>14日間の無料トライアル</strong>：初回登録または有効化時に14日間の無料トライアルが適用されます。無料期間終了後、有料プランに登録しない場合は自動的に無料版に移行し、自動的な請求は発生しません。定期購読を解約した場合も自動的に無料版へ移行します。</li>
+          <li><strong>自動更新と解約方法</strong>：サブスクリプションは自動更新されます（月間・年間プラン）。解約はいつでも iOS の「設定」➔「Apple ID」➔「サブスクリプション」から管理・解約が可能です。自動請求を防ぐには、現在の期間が終了する少なくとも24時間前までに解約手続きを行う必要があります。</li>
           <li><strong>返金ポリシー</strong>：すべての決済および取引は Apple App Store を通じて管理されます。返金を希望される場合は、Apple の返金ポリシーに従い、直接 Apple サポートから申請を行ってください。開発者が直接返金手続きを行うことはできません。</li>
         </ul>
       </div>

@@ -63,7 +63,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>
           本 App 使用 Google Firebase（Authentication、Cloud Firestore 與 Crashlytics）儲存帳號、物品資料並收集匿名當機診斷數據，
           受 <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase 隱私政策</a>規範。
-          條碼商品資訊查詢使用 <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> 開放資料庫。
+          商品條碼查詢使用 <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>、<a href="https://world.openbeautyfacts.org" target="_blank" rel="noopener">Open Beauty Facts</a>（開放食品／美妝保養品資料庫）與 <a href="https://www.upcitemdb.com" target="_blank" rel="noopener">UPCitemdb</a>（商品條碼備用查詢資料庫，作為前述開放資料庫查無資料時的備援）。掃描條碼時，僅該條碼號碼會傳送至上述外部服務以獲取商品資訊，不含任何可識別您個人身份的敏感資訊。
         </p>
       </div>
 
@@ -138,7 +138,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <p>
           The app uses Google Firebase (Authentication, Cloud Firestore, and Crashlytics) to store account data and collect anonymous diagnostic logs,
           governed by the <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy Policy</a>.
-          Barcode product lookups use the <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> open database.
+          Barcode product lookups use <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, <a href="https://world.openbeautyfacts.org" target="_blank" rel="noopener">Open Beauty Facts</a> (open databases for food/cosmetics product lookup), and <a href="https://www.upcitemdb.com" target="_blank" rel="noopener">UPCitemdb</a> (as a fallback database when the primary open databases return no results). When scanning a barcode, only the barcode number is sent to these services to retrieve product information, without any personally identifiable information.
         </p>
       </div>
 
@@ -212,7 +212,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         <h3>4. データの保存と外部送信</h3>
         <p>
           本アプリは、アカウントおよびアイテムデータの保存、ならびに匿名の診断ログの収集に Google Firebase (Authentication, Cloud Firestore, Crashlytics) を使用しており、Google の <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase プライバシーポリシー</a> が適用されます。
-          バーコードからの商品情報の検索には、オープンデータベースである <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> を利用しています。
+          バーコードによる商品情報の検索には、<a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>、<a href="https://world.openbeautyfacts.org" target="_blank" rel="noopener">Open Beauty Facts</a>（食品・化粧品に関するオープンデータベース）、および <a href="https://www.upcitemdb.com" target="_blank" rel="noopener">UPCitemdb</a>（上記データベースで結果が見つからない場合のバックアップ）を利用しています。バーコードをスキャンする際、商品情報を取得するために該当するバーコード番号のみが送信され、個人データは一切含まれません。
         </p>
       </div>
 
