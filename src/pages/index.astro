@@ -29,7 +29,8 @@ const projects = [
     g1: '#a06bff', g2: '#e36bd0',
   },
   {
-    href: `${base}/liquid-focus`,
+    href: 'https://liquid-focus-2l5.pages.dev/',
+    external: true,
     emoji: '🍅',
     title: 'Liquid Focus',
     sub: '液態番茄鐘',
@@ -115,7 +116,7 @@ const projects = [
                 <div class="tags">
                   {p.tags.map((t) => <span class="tag">{t}</span>)}
                 </div>
-                <span class="tag tag-update" id={`update-${p.href.split('/').pop()}`}></span>
+                {!p.external && <span class="tag tag-update" id={`update-${p.href.split('/').pop()}`}></span>}
               </div>
             </div>
           </a>
@@ -516,7 +517,6 @@ const projects = [
 
     // 只有公開且為開源儲存庫的專案拉取日期
     fetchRepoUpdateDate('Min-987/psd_to_png', 'update-psd-to-png');
-    fetchRepoUpdateDate('Min-987/min-987.github.io', 'update-liquid-focus');
 
 
 

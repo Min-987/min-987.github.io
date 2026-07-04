@@ -27,9 +27,9 @@ Welcome! 這是我個人網站的官方代碼倉庫，採用現代前端架構�
   - [隱私政策 (Privacy)](https://min-987.github.io/expiryrp/privacy/)：包含 Firebase Crashlytics 揭露與 GDPR/CCPA 合規聲明。
   - [服務條款 (Terms/EULA)](https://min-987.github.io/expiryrp/terms/)：完整中英日三語對齊的付費訂閱與免責協議。
 
-### 2. ⏳ [Liquid Focus — 液態番茄鐘](https://min-987.github.io/liquid-focus/)
+### 2. ⏳ [Liquid Focus — 液態番茄鐘](https://liquid-focus-2l5.pages.dev/)
 具備動態液體流動與氣泡點擊音效的沉浸式番茄工作鐘（Pomodoro）。
-- **說明**：為提升開發維護效率，本專案已拆分至獨立倉庫 [liquid-focus](https://github.com/Min-987/liquid-focus)，但透過 GitHub Pages 路由配置，仍完美掛載於 `/liquid-focus` 子路徑下運作。
+- **說明**：為提升開發與部署維護效率，本專案已改為私有倉庫並託管於 Cloudflare Pages，網址為 [https://liquid-focus-2l5.pages.dev/](https://liquid-focus-2l5.pages.dev/)。
 
 ### 3. 🖼️ [PSD to PNG — 瀏覽器 PSD 轉檔工具](https://min-987.github.io/psd-to-png/)
 100% 於瀏覽器本地端進行解析與轉檔的工具，不需上傳任何敏感圖檔至伺服器，安全且高效率。
