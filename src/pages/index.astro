@@ -134,13 +134,15 @@ const projects = [
       <!-- HubSpot 嵌入表單 (改為自訂原生表單以完美契合樣式) -->
       <div class="form-container">
         <form id="hsContactForm" class="contact-form">
-          <div class="form-group">
-            <label for="formName">您的名字</label>
-            <input type="text" id="formName" name="firstname" required placeholder="例如：王小明" />
-          </div>
-          <div class="form-group">
-            <label for="formEmail">電子信箱</label>
-            <input type="email" id="formEmail" name="email" required placeholder="your.email@example.com" />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="formName">您的名字</label>
+              <input type="text" id="formName" name="firstname" required placeholder="例如：王小明" />
+            </div>
+            <div class="form-group">
+              <label for="formEmail">電子信箱</label>
+              <input type="email" id="formEmail" name="email" required placeholder="your.email@example.com" />
+            </div>
           </div>
           <div class="form-group">
             <label for="formMessage">訊息內容</label>
@@ -400,7 +402,7 @@ const projects = [
 
     /* 聯絡我表單容器 (高階 Glassmorphism) */
     .form-container {
-      max-width: 580px;
+      max-width: 100%;
       margin: 40px 0;
       background: var(--surface-2); /* 靜態回退 */
       background: color-mix(in srgb, var(--surface-2) 65%, transparent);
@@ -411,6 +413,17 @@ const projects = [
       border-radius: 24px;
       box-shadow: 0 20px 50px -15px rgba(0,0,0,0.12);
       text-align: left;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
     }
     .contact-form {
       display: flex;
