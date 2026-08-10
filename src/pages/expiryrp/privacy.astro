@@ -8,7 +8,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <div class="wrap">
       <div style="font-size:52px; line-height:1;">🔒</div>
       <h1 style="margin-top:14px;">隱私政策 / Privacy Policy</h1>
-      <span class="badge">最後更新 / Last updated：2026 年 7 月</span>
+      <span class="badge">最後更新 / Last updated：2026 年 8 月</span>
       <p class="lead" style="margin:18px auto 0;">
         本政策說明 ExpiryRP 如何收集、使用與保護你的個人資料。<br>
         This policy explains how ExpiryRP collects, uses, and protects your personal data.
@@ -34,7 +34,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           <li><strong>帳號資料：</strong>當你以 Google 或 Apple 登入時，我們會取得你的電子郵件、顯示名稱與頭像，用於識別你的帳號。</li>
           <li><strong>你建立的內容：</strong>物品名稱、到期日、分類、數量、備註、條碼、消耗記錄，以及你所屬的家庭群組資訊，儲存於 Firebase Firestore。</li>
           <li><strong>當機分析資料（診斷資料）：</strong>為了改善 App 穩定性並修復崩潰問題，本 App 整合了 Firebase Crashlytics，會收集匿名當機記錄、裝置型號、OS 版本與當機堆疊追蹤。此資料不含任何可識別您個人身份的敏感資訊。</li>
-          <li><strong>回報截圖：</strong>當你透過回報功能上傳截圖時，圖片儲存於 Firebase Storage。</li>
+          <li><strong>意見回饋截圖</strong>：當您透過意見回饋附上截圖時，圖片會以壓縮後的形式儲存在 Firebase Firestore 資料庫中（我們未使用 Firebase Storage）。</li>
           <li><strong>物品照片：</strong>僅儲存在你的裝置本機（iOS Documents 目錄），不會上傳至任何伺服器。</li>
         </ul>
       </div>
@@ -109,7 +109,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           <li><strong>Account data:</strong> When you sign in with Google or Apple, we receive your email address, display name, and profile photo, used solely to identify your account.</li>
           <li><strong>Content you create:</strong> Item names, expiry dates, categories, quantities, notes, barcodes, consumption records, and household group data, stored in Firebase Firestore.</li>
           <li><strong>Crash Analysis (Diagnostic Data):</strong> To improve app stability and fix crashes, the app integrates Firebase Crashlytics, which collects anonymous crash logs, device models, OS versions, and crash stack traces. This data does not contain any personally identifiable information.</li>
-          <li><strong>Feedback screenshots:</strong> When you submit feedback with a screenshot, the image is stored in Firebase Storage.</li>
+          <li><strong>Feedback Screenshots</strong>: When you attach a screenshot to feedback, the image is stored in compressed form in Firebase Firestore (we do not use Firebase Storage).</li>
           <li><strong>Item photos:</strong> Stored locally on your device only (iOS Documents directory) and never uploaded to any server.</li>
         </ul>
       </div>
@@ -184,7 +184,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           <li><strong>アカウント情報：</strong> Google または Apple アカウントでのログイン時、アカウントを識別するためにメールアドレス、表示名、およびプロフィール画像を取得します。</li>
           <li><strong>登録コンテンツ：</strong> アイテム名、消費期限、カテゴリ、数量、メモ、バーコード、消費履歴、および共有グループの情報を Firebase Firestore に保存します。</li>
           <li><strong>クラッシュレポート（診断データ）：</strong> アプリの安定性を向上させ、バグを修正するため、当アプリは Firebase Crashlytics を統合しています。これにより、匿名的クラッシュログ、デバイスの機種名、OSのバージョン、およびクラッシュ時のスタックトレースが収集されます。このデータには個人を特定できる情報は一切含まれません。</li>
-          <li><strong>フィードバック画像：</strong> お問い合わせ時にスクリーンショットを添付した場合、その画像は Firebase Storage に保存されます。</li>
+          <li><strong>フィードバック画像：</strong> フィードバックにスクリーンショットを添付した場合、その画像は圧縮された形式で Firebase Firestore に保存されます（Firebase Storage は使用していません）。</li>
           <li><strong>アイテム写真：</strong> デバイスのローカル（iOS の Documents ディレクトリ）にのみ保存され、いかなるサーバーにもアップロードされません。</li>
         </ul>
       </div>
