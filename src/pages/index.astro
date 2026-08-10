@@ -13,6 +13,7 @@ const projects = [
   {
     href: `${base}/expiryrp`,
     emoji: '📦',
+    img: `${base}/expiryrp/app_icon.png`,
     title: 'ExpiryRP',
     sub: '到期日管理工具',
     desc: '掃描條碼記錄物品到期日，到期前主動提醒，減少食物與用品的浪費。支援家庭共享、消耗統計與 iOS 桌面小工具。',
@@ -102,8 +103,8 @@ const projects = [
         {projects.map((p) => (
           <a class="project" href={p.href} target={p.external ? '_blank' : undefined} rel={p.external ? 'noopener' : undefined} style={`--g1:${p.g1}; --g2:${p.g2};`}>
             <div class="project-header">
-              <div class="project-icon">
-                <span>{p.emoji}</span>
+              <div class="project-icon" style={p.img ? 'background:none; box-shadow:none;' : undefined}>
+                {p.img ? <img src={p.img} alt={`${p.title} 圖示`} width="48" height="48" /> : <span>{p.emoji}</span>}
               </div>
               <div class="project-title-group">
                 <strong>{p.title}</strong>
@@ -336,8 +337,20 @@ const projects = [
       transition: transform 0.3s ease;
     }
 
+    .project-icon img {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
     .project:hover .project-icon span {
       transform: scale(1.15) rotate(6deg);
+    }
+
+    .project:hover .project-icon img {
+      transform: scale(1.08);
     }
 
     .project-title-group {
